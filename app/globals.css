@@ -1,0 +1,89 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 220 25% 98%;
+    --foreground: 222 47% 8%;
+    --card: 0 0% 100%;
+    --card-foreground: 222 47% 8%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 222 47% 8%;
+    --primary: 189 94% 50%;
+    --primary-foreground: 222 47% 8%;
+    --secondary: 262 83% 66%;
+    --secondary-foreground: 0 0% 100%;
+    --muted: 220 20% 94%;
+    --muted-foreground: 220 10% 40%;
+    --accent: 38 92% 50%;
+    --accent-foreground: 222 47% 8%;
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 220 15% 88%;
+    --input: 220 15% 88%;
+    --ring: 189 94% 50%;
+    --radius: 0.75rem;
+  }
+
+  :root[data-theme="dark"],
+  .dark {
+    --background: 222 47% 6%;
+    --foreground: 210 40% 98%;
+    --card: 222 40% 9%;
+    --card-foreground: 210 40% 98%;
+    --popover: 222 40% 9%;
+    --popover-foreground: 210 40% 98%;
+    --primary: 189 94% 50%;
+    --primary-foreground: 222 47% 6%;
+    --secondary: 262 83% 66%;
+    --secondary-foreground: 0 0% 100%;
+    --muted: 222 30% 14%;
+    --muted-foreground: 220 15% 65%;
+    --accent: 38 92% 50%;
+    --accent-foreground: 222 47% 6%;
+    --destructive: 0 72% 51%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 222 25% 18%;
+    --input: 222 25% 18%;
+    --ring: 189 94% 50%;
+    --radius: 0.75rem;
+  }
+
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+    font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+  }
+  :focus-visible {
+    @apply outline-none ring-2 ring-primary ring-offset-2 ring-offset-background;
+  }
+}
+
+@layer utilities {
+  .text-gradient {
+    @apply bg-spy-gradient bg-clip-text text-transparent;
+  }
+  .glass {
+    @apply bg-card/60 backdrop-blur-xl border border-border/60;
+  }
+  .glow-border {
+    box-shadow: 0 0 0 1px rgba(34, 211, 238, 0.15), 0 0 30px -10px rgba(139, 92, 246, 0.35);
+  }
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+}
+
+html {
+  color-scheme: dark;
+}
+html[data-theme="light"] {
+  color-scheme: light;
+}

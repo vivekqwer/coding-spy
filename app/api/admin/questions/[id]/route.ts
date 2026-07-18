@@ -1,0 +1,36 @@
+import { NextResponse } from "next/server";
+import { requireAdmin } from "@/lib/requireAdmin";
+import { prisma } from "@/lib/prisma";
+import type { Prisma } from "@prisma/client";
+
+export async function PATCH(req: Request, { params }: { params: Promise<{ id: string }> }) {
+  const admin = await requireAdmin();
+  if (!admin) return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+
+  const { id } = await params;
+  const body = await req.json().catch(() => ({}));
+  const { question, options, correctIndex, explanation } = body as {
+    question?: string;
+    options?: string[];
+    correctIndex?: number;
+    explanation?: string;
+  };
+
+  const data: Prisma.QuizQuestionUpdateInput = {};
+  if (typeof question === "string") data.question = question;
+  if (options) data.options = options;
+  if (typeof correctIndex === "number") data.correctIndex = correctIndex;
+  if (typeof explanation === "string") data.explanation = explanation;
+
+  const q = await prisma.quizQuestion.update({ where: { id }, data });
+  return NextResponse.json(q);
+}
+
+export async function DELETE(_req: Request, { params }: { params: Promise<{ id: string }> }) {
+  const admin = await requireAdmin();
+  if (!admin) return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+
+  const { id } = await params;
+  await prisma.quizQuestion.delete({ where: { id } });
+  return NextResponse.json({ ok: true });
+}
