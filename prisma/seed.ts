@@ -3,7 +3,17 @@ import bcrypt from "bcryptjs";
 
 const prisma = new PrismaClient();
 
+const SLUG_OVERRIDES: Record<string, string> = {
+  "C": "c-lang",
+  "C++": "cpp",
+  "C#": "csharp",
+  "W3.CSS": "w3-css",
+  "ASP.NET": "asp-dot-net",
+  "Node.js": "nodejs",
+};
+
 function slugify(text: string): string {
+  if (SLUG_OVERRIDES[text]) return SLUG_OVERRIDES[text];
   return text
     .toLowerCase()
     .trim()
