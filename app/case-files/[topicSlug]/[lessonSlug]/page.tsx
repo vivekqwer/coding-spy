@@ -72,7 +72,7 @@ export default async function LessonPage({
   return (
     <>
       <Navbar />
-      <div className="flex min-h-[calc(100vh-4rem)]">
+      <div className="flex min-h-[calc(100vh-6.5rem)]">
         <SidebarNav topicSlug={topic.slug} chapters={topic.chapters} />
         <main className="flex-1 px-4 py-6 sm:px-8">
           <div className="mx-auto max-w-6xl">
@@ -99,7 +99,7 @@ export default async function LessonPage({
                 {session?.user && <NotesPanel lessonId={lesson.id} initialContent={noteContent} />}
                 <LessonMarkdown content={lesson.contentMarkdown} />
               </div>
-              <div className="h-[600px] lg:sticky lg:top-20 lg:h-[calc(100vh-6rem)]">
+              <div className="h-[600px] lg:sticky lg:top-28 lg:h-[calc(100vh-8rem)]">
                 <Playground
                   lessonId={lesson.id}
                   language={lesson.language}

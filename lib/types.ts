@@ -4,6 +4,12 @@ export type LessonPreview = {
   starterCode: string;
 };
 
+export type NavTopic = {
+  slug: string;
+  title: string;
+  color: string;
+};
+
 export type TopicCardData = {
   slug: string;
   title: string;
