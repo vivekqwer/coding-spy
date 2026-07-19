@@ -1,6 +1,15 @@
 import type { Role } from "@prisma/client";
 
-export type AdminSection = "overview" | "topics" | "users" | "certificates" | "seo" | "social" | "developer";
+export type AdminSection =
+  | "overview"
+  | "topics"
+  | "users"
+  | "certificates"
+  | "seo"
+  | "social"
+  | "developer"
+  | "homepage"
+  | "payments";
 
 const SECTION_ACCESS: Record<AdminSection, Role[]> = {
   overview: ["ADMIN", "SEO_MANAGER", "SOCIAL_MEDIA_MANAGER", "DEVELOPER"],
@@ -10,6 +19,8 @@ const SECTION_ACCESS: Record<AdminSection, Role[]> = {
   seo: ["ADMIN", "SEO_MANAGER"],
   social: ["ADMIN", "SOCIAL_MEDIA_MANAGER"],
   developer: ["ADMIN", "DEVELOPER"],
+  homepage: ["ADMIN", "SOCIAL_MEDIA_MANAGER"],
+  payments: ["ADMIN"],
 };
 
 export function canAccessSection(role: Role | undefined, section: AdminSection): boolean {

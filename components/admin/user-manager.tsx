@@ -3,9 +3,9 @@
 import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
-import { Search, Trash2 } from "lucide-react";
+import { Search, Trash2, Download } from "lucide-react";
 import { Input } from "@/components/ui/input";
-import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { formatDate } from "@/lib/utils";
 import { ROLE_LABELS } from "@/lib/permissions";
 
@@ -96,14 +96,21 @@ export function UserManager({
 
   return (
     <div className="space-y-4">
-      <div className="relative max-w-sm">
-        <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-        <Input
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
-          placeholder="Search agents by name or email…"
-          className="pl-9"
-        />
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <div className="relative max-w-sm flex-1">
+          <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+          <Input
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            placeholder="Search agents by name or email…"
+            className="pl-9"
+          />
+        </div>
+        <a href="/api/admin/users/export">
+          <Button variant="outline" size="sm">
+            <Download className="h-3.5 w-3.5" /> Export to Excel
+          </Button>
+        </a>
       </div>
 
       <div className="overflow-x-auto rounded-2xl border border-border/60">

@@ -9,6 +9,7 @@ import { TopicTile } from "@/components/topic-tile";
 import { SiteFooter } from "@/components/site-footer";
 import { Button } from "@/components/ui/button";
 import type { TopicCardData } from "@/lib/types";
+import { getSiteSettings } from "@/lib/site-settings";
 import { ShieldCheck, Terminal, Award, Flame, ArrowRight } from "lucide-react";
 
 export const dynamic = "force-dynamic";
@@ -17,6 +18,7 @@ const FEATURED_COUNT = 11;
 
 export default async function HomePage() {
   const session = await getServerSession(authOptions);
+  const settings = await getSiteSettings();
 
   const [topics, streakUser, lastProgress] = await Promise.all([
     prisma.topic.findMany({
@@ -74,15 +76,15 @@ export default async function HomePage() {
           <div className="container grid grid-cols-1 items-center gap-10 py-16 lg:grid-cols-2 lg:py-24">
             <div>
               <span className="mb-4 inline-block rounded-full border border-spy-amber/30 bg-spy-amber/10 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-spy-amber">
-                Classified curriculum · 47 case files
+                {settings.heroBadge}
               </span>
               <h1 className="mb-4 text-4xl font-extrabold leading-tight tracking-tight sm:text-5xl">
-                Decode. Learn. <span className="text-gradient">Master.</span>
+                {settings.heroTitle}
               </h1>
               <p className="mb-6 max-w-md text-lg text-muted-foreground">
-                Free tutorials, live code, and hands-on missions.
+                {settings.heroSubtitle}
                 <br />
-                <span className="font-semibold text-spy-cyan">No sign-up needed, just start learning.</span>
+                <span className="font-semibold text-spy-cyan">{settings.heroTagline}</span>
               </p>
               <ul className="mb-6 grid max-w-md grid-cols-2 gap-x-4 gap-y-2 text-sm text-muted-foreground">
                 {[
@@ -180,10 +182,8 @@ demo();`}</code>
         {/* CTA banner */}
         <section className="border-y border-border/60 bg-spy-gradient/10 py-14 text-center">
           <div className="container">
-            <h2 className="mb-3 text-2xl font-bold">Ready to earn your Agent Certification?</h2>
-            <p className="mb-6 text-muted-foreground">
-              Finish a case file, pass the quiz at 70% or higher, and download your certificate.
-            </p>
+            <h2 className="mb-3 text-2xl font-bold">{settings.ctaTitle}</h2>
+            <p className="mb-6 text-muted-foreground">{settings.ctaSubtitle}</p>
             <Link href="/signup">
               <Button size="lg">Start Your First Mission</Button>
             </Link>

@@ -5,15 +5,17 @@ import { authOptions } from "@/lib/auth";
 import { LogoWithWordmark } from "@/components/logo";
 import { canAccessSection, isStaffRole, ROLE_LABELS } from "@/lib/permissions";
 import { Badge } from "@/components/ui/badge";
-import { LayoutDashboard, BookOpen, Users, Award, Search, Share2, Code2 } from "lucide-react";
+import { LayoutDashboard, BookOpen, Users, Award, Search, Share2, Code2, Home, CreditCard } from "lucide-react";
 
 const NAV_ITEMS = [
   { href: "/admin", label: "Overview", icon: LayoutDashboard, section: "overview" as const },
+  { href: "/admin/homepage", label: "Homepage", icon: Home, section: "homepage" as const },
   { href: "/admin/topics", label: "Case Files", icon: BookOpen, section: "topics" as const },
   { href: "/admin/seo", label: "SEO & AEO", icon: Search, section: "seo" as const },
   { href: "/admin/social", label: "Social Media", icon: Share2, section: "social" as const },
   { href: "/admin/developer", label: "Developer", icon: Code2, section: "developer" as const },
   { href: "/admin/users", label: "Agent Roster", icon: Users, section: "users" as const },
+  { href: "/admin/payments", label: "Payments", icon: CreditCard, section: "payments" as const },
   { href: "/admin/certificates", label: "Certifications", icon: Award, section: "certificates" as const },
 ];
 

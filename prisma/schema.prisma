@@ -250,3 +250,14 @@ model Enrollment {
   @@unique([userId, topicId])
   @@index([gatewayOrderId])
 }
+
+model SiteSettings {
+  id          String   @id @default("singleton")
+  heroBadge   String   @default("Classified curriculum · 47 case files")
+  heroTitle   String   @default("Decode. Learn. Master.")
+  heroSubtitle String  @default("Free tutorials, live code, and hands-on missions.")
+  heroTagline String   @default("No sign-up needed, just start learning.")
+  ctaTitle    String   @default("Ready to earn your Agent Certification?")
+  ctaSubtitle String   @default("Finish a case file, pass the quiz at 70% or higher, and download your certificate.")
+  updatedAt   DateTime @updatedAt
+}
