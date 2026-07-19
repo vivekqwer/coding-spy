@@ -1,7 +1,12 @@
+import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
+import { requireSection } from "@/lib/requireAdmin";
 import { TopicManager } from "@/components/admin/topic-manager";
 
 export default async function AdminTopicsPage() {
+  const staff = await requireSection("topics");
+  if (!staff) redirect("/admin");
+
   const topics = await prisma.topic.findMany({
     orderBy: { order: "asc" },
     include: {

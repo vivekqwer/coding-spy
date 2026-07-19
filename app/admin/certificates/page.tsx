@@ -1,7 +1,12 @@
+import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
+import { requireSection } from "@/lib/requireAdmin";
 import { CertificateManager } from "@/components/admin/certificate-manager";
 
 export default async function AdminCertificatesPage() {
+  const staff = await requireSection("certificates");
+  if (!staff) redirect("/admin");
+
   const certificates = await prisma.certificate.findMany({
     orderBy: { issuedAt: "desc" },
     include: { user: { select: { name: true, email: true } }, topic: { select: { title: true, slug: true } } },

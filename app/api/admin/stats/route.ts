@@ -1,9 +1,9 @@
 import { NextResponse } from "next/server";
-import { requireAdmin } from "@/lib/requireAdmin";
+import { requireSection } from "@/lib/requireAdmin";
 import { prisma } from "@/lib/prisma";
 
 export async function GET() {
-  const admin = await requireAdmin();
+  const admin = await requireSection("overview");
   if (!admin) return NextResponse.json({ error: "Forbidden" }, { status: 403 });
 
   const [userCount, topicCount, lessonCount, certificateCount, completions, quizResults] = await Promise.all([

@@ -1,10 +1,10 @@
 import { NextResponse } from "next/server";
 import { writeFile, mkdir } from "fs/promises";
 import path from "path";
-import { requireAdmin } from "@/lib/requireAdmin";
+import { requireSection } from "@/lib/requireAdmin";
 
 export async function POST(req: Request) {
-  const admin = await requireAdmin();
+  const admin = await requireSection("topics");
   if (!admin) return NextResponse.json({ error: "Forbidden" }, { status: 403 });
 
   const formData = await req.formData();

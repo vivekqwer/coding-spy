@@ -1,9 +1,14 @@
+import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
+import { requireSection } from "@/lib/requireAdmin";
 import { UserManager } from "@/components/admin/user-manager";
 
 export default async function AdminUsersPage() {
+  const staff = await requireSection("users");
+  if (!staff) redirect("/admin");
+
   const session = await getServerSession(authOptions);
   const users = await prisma.user.findMany({
     orderBy: { createdAt: "desc" },

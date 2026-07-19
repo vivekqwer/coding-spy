@@ -1,10 +1,10 @@
 import { NextResponse } from "next/server";
-import { requireAdmin } from "@/lib/requireAdmin";
+import { requireSection } from "@/lib/requireAdmin";
 import { prisma } from "@/lib/prisma";
 import { slugify } from "@/lib/utils";
 
 export async function POST(req: Request) {
-  const admin = await requireAdmin();
+  const admin = await requireSection("topics");
   if (!admin) return NextResponse.json({ error: "Forbidden" }, { status: 403 });
 
   const body = await req.json().catch(() => ({}));

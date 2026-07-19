@@ -3,16 +3,29 @@
 import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
-import { Search, Trash2, ShieldCheck, Shield } from "lucide-react";
+import { Search, Trash2 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { formatDate } from "@/lib/utils";
+import { ROLE_LABELS } from "@/lib/permissions";
+
+type Role = "ADMIN" | "LEARNER" | "SEO_MANAGER" | "SOCIAL_MEDIA_MANAGER" | "DEVELOPER";
+
+const ALL_ROLES: Role[] = ["LEARNER", "ADMIN", "SEO_MANAGER", "SOCIAL_MEDIA_MANAGER", "DEVELOPER"];
+
+const ROLE_BADGE_CLASS: Record<Role, string> = {
+  ADMIN: "border-spy-violet/40 bg-spy-violet/10 text-spy-violet",
+  LEARNER: "",
+  SEO_MANAGER: "border-spy-cyan/40 bg-spy-cyan/10 text-spy-cyan",
+  SOCIAL_MEDIA_MANAGER: "border-pink-400/40 bg-pink-400/10 text-pink-400",
+  DEVELOPER: "border-green-500/40 bg-green-500/10 text-green-500",
+};
 
 type AgentRow = {
   id: string;
   name: string | null;
   email: string;
-  role: "ADMIN" | "LEARNER";
+  role: Role;
   createdAt: string;
   _count: { progress: number; certificates: number; quizResults: number };
 };
@@ -37,13 +50,13 @@ export function UserManager({
     );
   }, [users, query]);
 
-  async function toggleRole(user: AgentRow) {
+  async function changeRole(user: AgentRow, nextRole: Role) {
     if (user.id === currentUserId) {
       toast.error("You can't change your own role.");
       return;
     }
-    const nextRole = user.role === "ADMIN" ? "LEARNER" : "ADMIN";
-    if (!confirm(`Make ${user.name ?? user.email} ${nextRole === "ADMIN" ? "an Admin" : "a Learner"}?`)) return;
+    if (nextRole === user.role) return;
+    if (!confirm(`Set ${user.name ?? user.email}'s role to ${ROLE_LABELS[nextRole]}?`)) return;
 
     setBusyId(user.id);
     const res = await fetch(`/api/admin/users/${user.id}`, {
@@ -57,7 +70,7 @@ export function UserManager({
       return;
     }
     setUsers((us) => us.map((u) => (u.id === user.id ? { ...u, role: nextRole } : u)));
-    toast.success(`${user.name ?? user.email} is now ${nextRole === "ADMIN" ? "an Admin" : "a Learner"}.`);
+    toast.success(`${user.name ?? user.email} is now ${ROLE_LABELS[nextRole]}.`);
     router.refresh();
   }
 
@@ -114,9 +127,18 @@ export function UserManager({
                   <p className="text-xs text-muted-foreground">{u.email}</p>
                 </td>
                 <td className="px-4 py-3">
-                  <Badge className={u.role === "ADMIN" ? "border-spy-violet/40 bg-spy-violet/10 text-spy-violet" : ""}>
-                    {u.role}
-                  </Badge>
+                  <select
+                    value={u.role}
+                    disabled={busyId === u.id || u.id === currentUserId}
+                    onChange={(e) => changeRole(u, e.target.value as Role)}
+                    className={`rounded-full border px-2 py-1 text-xs font-semibold ${ROLE_BADGE_CLASS[u.role] || "border-border bg-transparent"} disabled:opacity-50`}
+                  >
+                    {ALL_ROLES.map((r) => (
+                      <option key={r} value={r}>
+                        {ROLE_LABELS[r]}
+                      </option>
+                    ))}
+                  </select>
                 </td>
                 <td className="px-4 py-3 text-muted-foreground">{formatDate(u.createdAt)}</td>
                 <td className="px-4 py-3">{u._count.progress}</td>
@@ -124,14 +146,6 @@ export function UserManager({
                 <td className="px-4 py-3">{u._count.certificates}</td>
                 <td className="px-4 py-3">
                   <div className="flex justify-end gap-2">
-                    <button
-                      onClick={() => toggleRole(u)}
-                      disabled={busyId === u.id || u.id === currentUserId}
-                      className="rounded-md p-1.5 text-muted-foreground hover:bg-card disabled:opacity-30"
-                      title={u.role === "ADMIN" ? "Demote to Learner" : "Promote to Admin"}
-                    >
-                      {u.role === "ADMIN" ? <Shield className="h-4 w-4" /> : <ShieldCheck className="h-4 w-4" />}
-                    </button>
                     <button
                       onClick={() => deleteUser(u)}
                       disabled={busyId === u.id || u.id === currentUserId}

@@ -1,6 +1,9 @@
 import { NextResponse } from "next/server";
 import { requireAdmin } from "@/lib/requireAdmin";
 import { prisma } from "@/lib/prisma";
+import { Role } from "@prisma/client";
+
+const VALID_ROLES = new Set(Object.values(Role));
 
 export async function PATCH(req: Request, { params }: { params: { id: string } }) {
   const admin = await requireAdmin();
@@ -11,12 +14,12 @@ export async function PATCH(req: Request, { params }: { params: { id: string } }
   }
 
   const body = await req.json().catch(() => ({}));
-  const { role } = body as { role?: "ADMIN" | "LEARNER" };
-  if (role !== "ADMIN" && role !== "LEARNER") {
-    return NextResponse.json({ error: "role must be ADMIN or LEARNER" }, { status: 400 });
+  const { role } = body as { role?: string };
+  if (!role || !VALID_ROLES.has(role as Role)) {
+    return NextResponse.json({ error: `role must be one of: ${Array.from(VALID_ROLES).join(", ")}` }, { status: 400 });
   }
 
-  const user = await prisma.user.update({ where: { id: params.id }, data: { role } });
+  const user = await prisma.user.update({ where: { id: params.id }, data: { role: role as Role } });
   return NextResponse.json(user);
 }
 

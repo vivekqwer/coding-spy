@@ -10,6 +10,20 @@ datasource db {
 enum Role {
   ADMIN
   LEARNER
+  SEO_MANAGER
+  SOCIAL_MEDIA_MANAGER
+  DEVELOPER
+}
+
+enum PaymentGateway {
+  RAZORPAY
+  STRIPE
+}
+
+enum EnrollmentStatus {
+  PENDING
+  PAID
+  FAILED
 }
 
 model User {
@@ -32,6 +46,7 @@ model User {
   quizResults  QuizResult[]
   certificates Certificate[]
   notes        Note[]
+  enrollments  Enrollment[]
 }
 
 model Account {
@@ -81,9 +96,24 @@ model Topic {
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
+  // Monetization
+  isPaid       Boolean @default(false)
+  priceInCents Int     @default(0)
+  currency     String  @default("INR")
+
+  // SEO
+  metaTitle       String?
+  metaDescription String?
+  metaKeywords    String?
+  ogImage         String?
+
+  // AEO (Answer Engine Optimization)
+  faqItems Json? // [{ question: string, answer: string }]
+
   chapters     Chapter[]
   quizzes      Quiz[]
   certificates Certificate[]
+  enrollments  Enrollment[]
 }
 
 model Chapter {
@@ -199,4 +229,24 @@ model Note {
   lesson Lesson @relation(fields: [lessonId], references: [id], onDelete: Cascade)
 
   @@unique([userId, lessonId])
+}
+
+model Enrollment {
+  id              String            @id @default(cuid())
+  userId          String
+  topicId         String
+  gateway         PaymentGateway
+  gatewayOrderId  String?
+  gatewayPaymentId String?
+  amountInCents   Int
+  currency        String
+  status          EnrollmentStatus  @default(PENDING)
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
+
+  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  topic Topic @relation(fields: [topicId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, topicId])
+  @@index([gatewayOrderId])
 }
