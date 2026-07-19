@@ -4,7 +4,7 @@ import { useMemo, useState } from "react";
 import Link from "next/link";
 import Fuse from "fuse.js";
 import { Search } from "lucide-react";
-import type { TopicCardData } from "@/components/topic-card";
+import type { TopicCardData } from "@/lib/types";
 
 export function SearchBar({ topics }: { topics: TopicCardData[] }) {
   const [query, setQuery] = useState("");

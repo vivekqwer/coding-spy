@@ -1,68 +1,151 @@
+import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import { Navbar } from "@/components/navbar";
-import { TopicCard, type TopicCardData } from "@/components/topic-card";
 import { SearchBar } from "@/components/search-bar";
-import { LogoWithWordmark } from "@/components/logo";
+import { FeaturedBand } from "@/components/featured-band";
+import { TopicTile } from "@/components/topic-tile";
+import { SiteFooter } from "@/components/site-footer";
+import { Button } from "@/components/ui/button";
+import type { TopicCardData } from "@/lib/types";
+import { ShieldCheck, Terminal, Award } from "lucide-react";
 
 export const dynamic = "force-dynamic";
+
+const FEATURED_COUNT = 11;
 
 export default async function HomePage() {
   const topics = await prisma.topic.findMany({
     where: { isPublished: true },
     orderBy: { order: "asc" },
-    include: { _count: { select: { chapters: true } }, chapters: { include: { _count: { select: { lessons: true } } } } },
+    include: {
+      chapters: {
+        orderBy: { order: "asc" },
+        include: {
+          lessons: {
+            orderBy: { order: "asc" },
+            select: { slug: true, language: true, starterCode: true },
+          },
+        },
+      },
+    },
   });
 
-  const topicCards: TopicCardData[] = topics.map((t) => ({
-    slug: t.slug,
-    title: t.title,
-    description: t.description,
-    icon: t.icon,
-    color: t.color,
-    lessonCount: t.chapters.reduce((sum, c) => sum + c._count.lessons, 0),
-  }));
+  const topicCards: TopicCardData[] = topics.map((t) => {
+    const allLessons = t.chapters.flatMap((c) => c.lessons);
+    return {
+      slug: t.slug,
+      title: t.title,
+      description: t.description,
+      icon: t.icon,
+      color: t.color,
+      lessonCount: allLessons.length,
+      firstLesson: allLessons[0] ?? null,
+    };
+  });
+
+  const featured = topicCards.slice(0, FEATURED_COUNT);
+  const rest = topicCards.slice(FEATURED_COUNT);
 
   return (
     <>
       <Navbar />
       <main className="bg-background">
-        <section className="container flex flex-col items-center gap-6 py-20 text-center">
-          <span className="rounded-full border border-spy-amber/30 bg-spy-amber/10 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-spy-amber">
-            Classified curriculum · 47 case files
-          </span>
-          <h1 className="max-w-3xl text-4xl font-bold tracking-tight sm:text-6xl">
-            Decode. Learn. <span className="text-gradient">Master.</span>
-          </h1>
-          <p className="max-w-xl text-lg text-muted-foreground">
-            Coding Spy is your covert HQ for learning to code — hands-on case files, a live playground, and
-            agent certifications for every skill you crack.
-          </p>
-          {topicCards.length > 0 ? (
-            <SearchBar topics={topicCards} />
-          ) : (
-            <p className="text-sm text-muted-foreground">No intel yet, Agent. Run the seed script to load the archive.</p>
-          )}
+        {/* Hero */}
+        <section className="border-b border-border/60 bg-gradient-to-b from-spy-violet/10 to-transparent">
+          <div className="container grid grid-cols-1 items-center gap-10 py-16 lg:grid-cols-2 lg:py-24">
+            <div>
+              <span className="mb-4 inline-block rounded-full border border-spy-amber/30 bg-spy-amber/10 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-spy-amber">
+                Classified curriculum · 47 case files
+              </span>
+              <h1 className="mb-4 text-4xl font-extrabold leading-tight tracking-tight sm:text-5xl">
+                Decode. Learn. <span className="text-gradient">Master.</span>
+              </h1>
+              <p className="mb-6 max-w-md text-lg text-muted-foreground">
+                Free tutorials, live code, and hands-on missions.
+                <br />
+                <span className="font-semibold text-spy-cyan">No sign-up needed, just start learning.</span>
+              </p>
+              <ul className="mb-6 grid max-w-md grid-cols-2 gap-x-4 gap-y-2 text-sm text-muted-foreground">
+                {[
+                  ["Clearance Level tracking", ShieldCheck],
+                  ["Live code playground", Terminal],
+                  ["Agent Certification", Award],
+                  ["AI-powered hints", ShieldCheck],
+                ].map(([label, Icon]) => {
+                  const IconComp = Icon as React.ComponentType<{ className?: string }>;
+                  return (
+                    <li key={label as string} className="flex items-center gap-2">
+                      <IconComp className="h-4 w-4 text-spy-cyan" /> {label as string}
+                    </li>
+                  );
+                })}
+              </ul>
+              <div className="mb-6 flex flex-wrap gap-3">
+                <Link href="/signup">
+                  <Button size="lg">Request Clearance</Button>
+                </Link>
+                <Link href="#case-files">
+                  <Button size="lg" variant="outline">
+                    Browse Case Files
+                  </Button>
+                </Link>
+              </div>
+              <SearchBar topics={topicCards} />
+            </div>
+
+            <div className="glass glow-border rounded-2xl p-6">
+              <p className="mb-1 text-xs font-semibold uppercase tracking-wide text-spy-amber">The Lab</p>
+              <p className="mb-4 text-lg font-semibold">Run real code, right in the browser.</p>
+              <pre className="overflow-x-auto rounded-xl border border-border/60 bg-[#0d1117] p-4 text-xs text-foreground/90">
+                <code>{`function demo() {
+  console.log("Welcome, Agent.");
+}
+
+demo();`}</code>
+              </pre>
+              <p className="mt-4 text-sm text-muted-foreground">
+                Every case file ships with a live Monaco editor, sandboxed preview, real terminal, and an
+                AI hint on request.
+              </p>
+            </div>
+          </div>
         </section>
 
-        <section id="case-files" className="container pb-24">
-          <h2 className="mb-6 text-2xl font-semibold">Open Case Files</h2>
-          {topicCards.length === 0 ? (
-            <div className="glass rounded-2xl p-10 text-center text-muted-foreground">No intel yet, Agent.</div>
+        {/* Featured topic bands */}
+        <div id="case-files">
+          {featured.length === 0 ? (
+            <div className="container py-16 text-center text-muted-foreground">No intel yet, Agent.</div>
           ) : (
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-              {topicCards.map((topic, i) => (
-                <TopicCard key={topic.slug} topic={topic} index={i} />
+            featured.map((topic, i) => <FeaturedBand key={topic.slug} topic={topic} reverse={i % 2 === 1} />)
+          )}
+        </div>
+
+        {/* Remaining topics grid */}
+        {rest.length > 0 && (
+          <section className="container py-16">
+            <h2 className="mb-6 text-2xl font-bold">More Case Files</h2>
+            <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
+              {rest.map((topic, i) => (
+                <TopicTile key={topic.slug} topic={topic} index={i} />
               ))}
             </div>
-          )}
+          </section>
+        )}
+
+        {/* CTA banner */}
+        <section className="border-y border-border/60 bg-spy-gradient/10 py-14 text-center">
+          <div className="container">
+            <h2 className="mb-3 text-2xl font-bold">Ready to earn your Agent Certification?</h2>
+            <p className="mb-6 text-muted-foreground">
+              Finish a case file, pass the quiz at 70% or higher, and download your certificate.
+            </p>
+            <Link href="/signup">
+              <Button size="lg">Start Your First Mission</Button>
+            </Link>
+          </div>
         </section>
 
-        <footer className="border-t border-border/60 py-8">
-          <div className="container flex flex-col items-center gap-3 text-sm text-muted-foreground sm:flex-row sm:justify-between">
-            <LogoWithWordmark className="opacity-80" />
-            <span>© {new Date().getFullYear()} Coding Spy. All secrets reserved.</span>
-          </div>
-        </footer>
+        <SiteFooter topics={topicCards} />
       </main>
     </>
   );
