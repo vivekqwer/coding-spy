@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { motion } from "framer-motion";
 import * as Icons from "lucide-react";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, Lock } from "lucide-react";
 import type { TopicCardData } from "@/lib/types";
 
 function IconFor(name: string) {
@@ -40,7 +40,14 @@ export function FeaturedBand({ topic, reverse = false }: { topic: TopicCardData;
             >
               <IconComp className="h-6 w-6" style={{ color: topic.color }} />
             </div>
-            <h2 className="mb-2 text-4xl font-extrabold tracking-tight">{topic.title}</h2>
+            <div className="mb-2 flex items-center gap-2">
+              <h2 className="text-4xl font-extrabold tracking-tight">{topic.title}</h2>
+              {topic.isPaid && (
+                <span className="flex items-center gap-1 rounded-full border border-spy-amber/40 bg-spy-amber/10 px-2.5 py-1 text-xs font-semibold text-spy-amber">
+                  <Lock className="h-3 w-3" /> {(topic.priceInCents / 100).toFixed(0)} {topic.currency}
+                </span>
+              )}
+            </div>
             <p className="mb-6 max-w-md text-muted-foreground">{topic.description}</p>
             <div className="flex flex-wrap gap-3">
               <Link
@@ -48,7 +55,7 @@ export function FeaturedBand({ topic, reverse = false }: { topic: TopicCardData;
                 className="rounded-lg px-5 py-2.5 text-sm font-semibold text-white shadow-lg transition hover:brightness-110"
                 style={{ backgroundColor: topic.color }}
               >
-                Learn {topic.title}
+                {topic.isPaid ? `Unlock ${topic.title}` : `Learn ${topic.title}`}
               </Link>
               <Link
                 href={`/case-files/${topic.slug}`}

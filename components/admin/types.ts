@@ -39,6 +39,9 @@ export type AdminTopic = {
   color: string;
   order: number;
   isPublished: boolean;
+  isPaid: boolean;
+  priceInCents: number;
+  currency: string;
   chapters: AdminChapter[];
   quizzes: AdminQuiz[];
 };

@@ -10,6 +10,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { LessonEditor } from "@/components/admin/lesson-editor";
 import { QuizBuilder } from "@/components/admin/quiz-builder";
+import { MonetizationToggle } from "@/components/admin/monetization-toggle";
 import type { AdminTopic, AdminLesson } from "@/components/admin/types";
 
 export function TopicManager({ initialTopics }: { initialTopics: AdminTopic[] }) {
@@ -245,6 +246,11 @@ export function TopicManager({ initialTopics }: { initialTopics: AdminTopic[] })
                     <HelpCircle className="mr-1 h-3 w-3" /> No quiz
                   </Badge>
                 )}
+                {topic.isPaid && (
+                  <Badge className="border-spy-amber/40 bg-spy-amber/10 text-spy-amber">
+                    {(topic.priceInCents / 100).toFixed(0)} {topic.currency}
+                  </Badge>
+                )}
               </button>
               <button onClick={() => deleteTopic(topic.id, topic.title)} aria-label="Delete topic">
                 <Trash2 className="h-4 w-4 text-destructive" />
@@ -253,6 +259,15 @@ export function TopicManager({ initialTopics }: { initialTopics: AdminTopic[] })
 
             {expanded[topic.id] && (
               <div className="mt-4 space-y-3 border-t border-border/60 pt-4">
+                <MonetizationToggle
+                  topicId={topic.id}
+                  isPaid={topic.isPaid}
+                  priceInCents={topic.priceInCents}
+                  currency={topic.currency}
+                  onUpdated={(data) =>
+                    setTopics((ts) => ts.map((t) => (t.id === topic.id ? { ...t, ...data } : t)))
+                  }
+                />
                 {topic.chapters.map((chapter) => (
                   <div key={chapter.id} className="rounded-lg border border-border/60 p-3">
                     <div className="flex items-center justify-between">

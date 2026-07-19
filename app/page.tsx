@@ -56,6 +56,9 @@ export default async function HomePage() {
       color: t.color,
       lessonCount: allLessons.length,
       firstLesson: allLessons[0] ?? null,
+      isPaid: t.isPaid,
+      priceInCents: t.priceInCents,
+      currency: t.currency,
     };
   });
 

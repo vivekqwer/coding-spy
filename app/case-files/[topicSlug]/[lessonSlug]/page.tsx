@@ -1,4 +1,4 @@
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import Link from "next/link";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
@@ -37,6 +37,21 @@ export default async function LessonPage({
   const prevLesson = flatLessons[currentIndex - 1];
   const nextLesson = flatLessons[currentIndex + 1];
   const isLastLesson = currentIndex === flatLessons.length - 1;
+
+  if (topic.isPaid) {
+    const staffRoles = new Set(["ADMIN", "DEVELOPER", "SEO_MANAGER", "SOCIAL_MEDIA_MANAGER"]);
+    if (!session?.user) {
+      redirect(`/login?callbackUrl=/case-files/${topic.slug}/${lesson.slug}`);
+    }
+    if (!staffRoles.has(session.user.role)) {
+      const enrollment = await prisma.enrollment.findUnique({
+        where: { userId_topicId: { userId: session.user.id, topicId: topic.id } },
+      });
+      if (enrollment?.status !== "PAID") {
+        redirect(`/checkout/${topic.slug}`);
+      }
+    }
+  }
 
   let progress: { completed: boolean; savedCode: string | null } | null = null;
   let clearance = 0;

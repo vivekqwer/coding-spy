@@ -18,4 +18,7 @@ export type TopicCardData = {
   color: string;
   lessonCount: number;
   firstLesson: LessonPreview | null;
+  isPaid: boolean;
+  priceInCents: number;
+  currency: string;
 };

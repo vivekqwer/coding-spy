@@ -7,17 +7,53 @@ export async function PATCH(req: Request, { params }: { params: { id: string } }
   if (!admin) return NextResponse.json({ error: "Forbidden" }, { status: 403 });
 
   const body = await req.json().catch(() => ({}));
-  const { title, description, icon, color, isPublished } = body as {
+  const {
+    title,
+    description,
+    icon,
+    color,
+    isPublished,
+    isPaid,
+    priceInCents,
+    currency,
+    metaTitle,
+    metaDescription,
+    metaKeywords,
+    ogImage,
+    faqItems,
+  } = body as {
     title?: string;
     description?: string;
     icon?: string;
     color?: string;
     isPublished?: boolean;
+    isPaid?: boolean;
+    priceInCents?: number;
+    currency?: string;
+    metaTitle?: string;
+    metaDescription?: string;
+    metaKeywords?: string;
+    ogImage?: string;
+    faqItems?: { question: string; answer: string }[];
   };
 
   const topic = await prisma.topic.update({
     where: { id: params.id },
-    data: { title, description, icon, color, isPublished },
+    data: {
+      ...(title !== undefined ? { title } : {}),
+      ...(description !== undefined ? { description } : {}),
+      ...(icon !== undefined ? { icon } : {}),
+      ...(color !== undefined ? { color } : {}),
+      ...(isPublished !== undefined ? { isPublished } : {}),
+      ...(isPaid !== undefined ? { isPaid } : {}),
+      ...(priceInCents !== undefined ? { priceInCents } : {}),
+      ...(currency !== undefined ? { currency } : {}),
+      ...(metaTitle !== undefined ? { metaTitle } : {}),
+      ...(metaDescription !== undefined ? { metaDescription } : {}),
+      ...(metaKeywords !== undefined ? { metaKeywords } : {}),
+      ...(ogImage !== undefined ? { ogImage } : {}),
+      ...(faqItems !== undefined ? { faqItems } : {}),
+    },
   });
   return NextResponse.json(topic);
 }
