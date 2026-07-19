@@ -1,6 +1,7 @@
 import { prisma } from "@/lib/prisma";
 import { formatDate } from "@/lib/utils";
 import { LogoWithWordmark } from "@/components/logo";
+import { ShareButtons } from "@/components/share-buttons";
 import { CheckCircle2, XCircle } from "lucide-react";
 import Link from "next/link";
 
@@ -26,6 +27,12 @@ export default async function VerifyPage({ params }: { params: { code: string } 
               {formatDate(certificate.issuedAt)}.
             </p>
             <p className="mt-4 font-mono text-xs text-spy-cyan">{certificate.code}</p>
+            <div className="mt-5 flex justify-center">
+              <ShareButtons
+                url={`${process.env.NEXTAUTH_URL ?? "http://localhost:3000"}/verify/${certificate.code}`}
+                text={`I just earned my ${certificate.topic.title} Agent Certification on Coding Spy!`}
+              />
+            </div>
           </>
         ) : (
           <>

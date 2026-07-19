@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { notFound, redirect } from "next/navigation";
 import Link from "next/link";
 import { getServerSession } from "next-auth";
@@ -14,11 +15,34 @@ import { NotesPanel } from "@/components/notes-panel";
 import { recordActivity } from "@/lib/streak";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 
-export default async function LessonPage({
-  params,
-}: {
-  params: { topicSlug: string; lessonSlug: string };
-}) {
+type LessonPageParams = { topicSlug: string; lessonSlug: string };
+
+export async function generateMetadata({ params }: { params: LessonPageParams }): Promise<Metadata> {
+  const topic = await prisma.topic.findUnique({
+    where: { slug: params.topicSlug },
+    select: { title: true, description: true, metaTitle: true, metaDescription: true, metaKeywords: true, ogImage: true },
+  });
+  if (!topic) return {};
+
+  const lesson = await prisma.lesson.findFirst({
+    where: { slug: params.lessonSlug, chapter: { topic: { slug: params.topicSlug } } },
+    select: { title: true },
+  });
+
+  const title = lesson ? `${lesson.title} — ${topic.title} Tutorial | Coding Spy` : (topic.metaTitle ?? topic.title);
+  const description = topic.metaDescription ?? topic.description;
+  const ogImage = topic.ogImage ?? `/api/og/${params.topicSlug}`;
+
+  return {
+    title,
+    description,
+    keywords: topic.metaKeywords ?? undefined,
+    openGraph: { title, description, images: [ogImage] },
+    twitter: { card: "summary_large_image", title, description, images: [ogImage] },
+  };
+}
+
+export default async function LessonPage({ params }: { params: LessonPageParams }) {
   const session = await getServerSession(authOptions);
   const topic = await prisma.topic.findUnique({
     where: { slug: params.topicSlug },
@@ -83,9 +107,49 @@ export default async function LessonPage({
   }
 
   const topicQuiz = topic.quizzes[0];
+  const baseUrl = process.env.NEXTAUTH_URL ?? "http://localhost:3000";
+  const faqItems = (topic.faqItems as { question: string; answer: string }[] | null) ?? [];
+
+  const jsonLd = [
+    {
+      "@context": "https://schema.org",
+      "@type": "Course",
+      name: `${topic.title} Tutorial`,
+      description: topic.metaDescription ?? topic.description,
+      provider: { "@type": "Organization", name: "Coding Spy", sameAs: baseUrl },
+    },
+    {
+      "@context": "https://schema.org",
+      "@type": "BreadcrumbList",
+      itemListElement: [
+        { "@type": "ListItem", position: 1, name: "Home", item: baseUrl },
+        { "@type": "ListItem", position: 2, name: topic.title, item: `${baseUrl}/case-files/${topic.slug}` },
+        {
+          "@type": "ListItem",
+          position: 3,
+          name: lesson.title,
+          item: `${baseUrl}/case-files/${topic.slug}/${lesson.slug}`,
+        },
+      ],
+    },
+    ...(faqItems.length > 0
+      ? [
+          {
+            "@context": "https://schema.org",
+            "@type": "FAQPage",
+            mainEntity: faqItems.map((f) => ({
+              "@type": "Question",
+              name: f.question,
+              acceptedAnswer: { "@type": "Answer", text: f.answer },
+            })),
+          },
+        ]
+      : []),
+  ];
 
   return (
     <>
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
       <Navbar />
       <div className="flex min-h-[calc(100vh-6.5rem)]">
         <SidebarNav topicSlug={topic.slug} chapters={topic.chapters} />
