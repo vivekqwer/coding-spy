@@ -9,7 +9,15 @@ import type { AdminLesson } from "@/components/admin/types";
 
 const LANGUAGES = ["html", "css", "javascript", "python", "sql", "java", "c", "cpp", "typescript", "bash", "json", "plaintext"];
 
-export function LessonEditor({ lesson, onClose, onSaved }: { lesson: AdminLesson; onClose: () => void; onSaved: () => void }) {
+export function LessonEditor({
+  lesson,
+  onClose,
+  onSaved,
+}: {
+  lesson: AdminLesson;
+  onClose: () => void;
+  onSaved: (updated: AdminLesson) => void;
+}) {
   const [title, setTitle] = useState(lesson.title);
   const [language, setLanguage] = useState(lesson.language);
   const [starterCode, setStarterCode] = useState(lesson.starterCode);
@@ -29,8 +37,9 @@ export function LessonEditor({ lesson, onClose, onSaved }: { lesson: AdminLesson
       toast.error("Could not save lesson.");
       return;
     }
+    const updated = await res.json();
     toast.success("Lesson updated.");
-    onSaved();
+    onSaved(updated);
   }
 
   return (

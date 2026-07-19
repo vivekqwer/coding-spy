@@ -10,11 +10,15 @@ import type { AdminQuiz } from "@/components/admin/types";
 export function QuizBuilder({
   topicId,
   quiz,
-  onRefresh,
+  onQuizCreated,
+  onQuestionAdded,
+  onQuestionDeleted,
 }: {
   topicId: string;
   quiz: AdminQuiz | undefined;
-  onRefresh: () => void;
+  onQuizCreated: (quiz: AdminQuiz) => void;
+  onQuestionAdded: (question: AdminQuiz["questions"][number]) => void;
+  onQuestionDeleted: (questionId: string) => void;
 }) {
   const [creatingQuiz, setCreatingQuiz] = useState(false);
   const [question, setQuestion] = useState("");
@@ -24,13 +28,19 @@ export function QuizBuilder({
 
   async function createQuiz() {
     setCreatingQuiz(true);
-    await fetch("/api/admin/quizzes", {
+    const res = await fetch("/api/admin/quizzes", {
       method: "POST",
       headers: { "content-type": "application/json" },
       body: JSON.stringify({ title: "Topic Quiz", topicId }),
     });
     setCreatingQuiz(false);
-    onRefresh();
+    if (!res.ok) {
+      toast.error("Could not create quiz.");
+      return;
+    }
+    const created = await res.json();
+    toast.success("Quiz created — add some questions below.");
+    onQuizCreated({ ...created, questions: [] });
   }
 
   async function addQuestion() {
@@ -39,21 +49,33 @@ export function QuizBuilder({
       toast.error("Fill in the question and all options.");
       return;
     }
-    await fetch("/api/admin/questions", {
+    const res = await fetch("/api/admin/questions", {
       method: "POST",
       headers: { "content-type": "application/json" },
       body: JSON.stringify({ quizId: quiz.id, question, options, correctIndex, explanation }),
     });
+    if (!res.ok) {
+      toast.error("Could not add question.");
+      return;
+    }
+    const created = await res.json();
     setQuestion("");
     setOptions(["", "", "", ""]);
     setCorrectIndex(0);
     setExplanation("");
-    onRefresh();
+    toast.success("Question added.");
+    onQuestionAdded(created);
   }
 
   async function deleteQuestion(id: string) {
-    await fetch(`/api/admin/questions/${id}`, { method: "DELETE" });
-    onRefresh();
+    if (!confirm("Delete this question?")) return;
+    const res = await fetch(`/api/admin/questions/${id}`, { method: "DELETE" });
+    if (!res.ok) {
+      toast.error("Could not delete question.");
+      return;
+    }
+    toast.success("Question deleted.");
+    onQuestionDeleted(id);
   }
 
   if (!quiz) {

@@ -3,7 +3,7 @@ import { redirect } from "next/navigation";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { LogoWithWordmark } from "@/components/logo";
-import { LayoutDashboard, BookOpen } from "lucide-react";
+import { LayoutDashboard, BookOpen, Users, Award } from "lucide-react";
 
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
   const session = await getServerSession(authOptions);
@@ -22,6 +22,12 @@ export default async function AdminLayout({ children }: { children: React.ReactN
           </Link>
           <Link href="/admin/topics" className="flex items-center gap-2 rounded-md px-2 py-1.5 hover:bg-card/60">
             <BookOpen className="h-4 w-4" /> Case Files
+          </Link>
+          <Link href="/admin/users" className="flex items-center gap-2 rounded-md px-2 py-1.5 hover:bg-card/60">
+            <Users className="h-4 w-4" /> Agent Roster
+          </Link>
+          <Link href="/admin/certificates" className="flex items-center gap-2 rounded-md px-2 py-1.5 hover:bg-card/60">
+            <Award className="h-4 w-4" /> Certifications
           </Link>
         </nav>
       </aside>
