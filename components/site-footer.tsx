@@ -1,5 +1,4 @@
 import Link from "next/link";
-import { Github, Linkedin, Twitter } from "lucide-react";
 import { LogoWithWordmark } from "@/components/logo";
 import type { TopicCardData } from "@/lib/types";
 
@@ -16,11 +15,6 @@ export function SiteFooter({ topics }: { topics: TopicCardData[] }) {
             Coding Spy is optimized for hands-on learning. Case files, examples, and quizzes are continually
             reviewed for accuracy.
           </p>
-          <div className="mt-4 flex gap-3 text-muted-foreground">
-            <Github className="h-4 w-4" />
-            <Linkedin className="h-4 w-4" />
-            <Twitter className="h-4 w-4" />
-          </div>
         </div>
         <div>
           <p className="mb-3 text-xs font-semibold uppercase tracking-wide text-spy-amber">Top Case Files</p>
