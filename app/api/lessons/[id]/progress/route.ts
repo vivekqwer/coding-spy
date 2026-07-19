@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { requireUser } from "@/lib/requireAdmin";
 import { prisma } from "@/lib/prisma";
+import { recordActivity } from "@/lib/streak";
 
 export async function POST(req: Request, { params }: { params: { id: string } }) {
   const user = await requireUser();
@@ -22,6 +23,8 @@ export async function POST(req: Request, { params }: { params: { id: string } })
       completed: completed ?? false,
     },
   });
+
+  await recordActivity(user.id);
 
   return NextResponse.json(progress);
 }

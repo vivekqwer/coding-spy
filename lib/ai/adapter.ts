@@ -55,3 +55,45 @@ export async function getAiHint(params: {
     return pickFallback(params.code + params.language);
   }
 }
+
+const CHAT_FALLBACK =
+  "The Intel channel is offline right now (no AI key configured), Agent. Browse the case file's Tip callouts " +
+  "or ask in the lesson's Request Intel button once you have some code written — that route works without a live connection too.";
+
+export type ChatMessage = { role: "user" | "assistant"; content: string };
+
+export async function getAiTutorReply(messages: ChatMessage[]): Promise<string> {
+  const apiKey = process.env.ANTHROPIC_API_KEY;
+  if (!apiKey) return CHAT_FALLBACK;
+
+  const system =
+    "You are the Coding Spy AI Tutor — a friendly, encouraging programming tutor embedded in a coding " +
+    "education platform (Coding Spy: Decode. Learn. Master.) covering HTML, CSS, JavaScript, Python, SQL, " +
+    "Java, and 40+ other languages/topics. Answer programming questions clearly and concisely (usually under " +
+    "150 words), use short code snippets when helpful, and keep a supportive tone. If asked something " +
+    "completely unrelated to learning or programming, gently redirect to coding topics.";
+
+  try {
+    const res = await fetch("https://api.anthropic.com/v1/messages", {
+      method: "POST",
+      headers: {
+        "content-type": "application/json",
+        "x-api-key": apiKey,
+        "anthropic-version": "2023-06-01",
+      },
+      body: JSON.stringify({
+        model: "claude-3-5-haiku-20241022",
+        max_tokens: 400,
+        system,
+        messages: messages.slice(-12),
+      }),
+    });
+
+    if (!res.ok) return CHAT_FALLBACK;
+    const data = (await res.json()) as { content?: { type: string; text?: string }[] };
+    const text = data.content?.find((c) => c.type === "text")?.text;
+    return text?.trim() || CHAT_FALLBACK;
+  } catch {
+    return CHAT_FALLBACK;
+  }
+}

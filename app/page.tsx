@@ -1,4 +1,6 @@
 import Link from "next/link";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { Navbar } from "@/components/navbar";
 import { SearchBar } from "@/components/search-bar";
@@ -7,28 +9,42 @@ import { TopicTile } from "@/components/topic-tile";
 import { SiteFooter } from "@/components/site-footer";
 import { Button } from "@/components/ui/button";
 import type { TopicCardData } from "@/lib/types";
-import { ShieldCheck, Terminal, Award } from "lucide-react";
+import { ShieldCheck, Terminal, Award, Flame, ArrowRight } from "lucide-react";
 
 export const dynamic = "force-dynamic";
 
 const FEATURED_COUNT = 11;
 
 export default async function HomePage() {
-  const topics = await prisma.topic.findMany({
-    where: { isPublished: true },
-    orderBy: { order: "asc" },
-    include: {
-      chapters: {
-        orderBy: { order: "asc" },
-        include: {
-          lessons: {
-            orderBy: { order: "asc" },
-            select: { slug: true, language: true, starterCode: true },
+  const session = await getServerSession(authOptions);
+
+  const [topics, streakUser, lastProgress] = await Promise.all([
+    prisma.topic.findMany({
+      where: { isPublished: true },
+      orderBy: { order: "asc" },
+      include: {
+        chapters: {
+          orderBy: { order: "asc" },
+          include: {
+            lessons: {
+              orderBy: { order: "asc" },
+              select: { slug: true, language: true, starterCode: true },
+            },
           },
         },
       },
-    },
-  });
+    }),
+    session?.user
+      ? prisma.user.findUnique({ where: { id: session.user.id }, select: { currentStreak: true } })
+      : Promise.resolve(null),
+    session?.user
+      ? prisma.progress.findFirst({
+          where: { userId: session.user.id },
+          orderBy: { updatedAt: "desc" },
+          include: { lesson: { include: { chapter: { include: { topic: true } } } } },
+        })
+      : Promise.resolve(null),
+  ]);
 
   const topicCards: TopicCardData[] = topics.map((t) => {
     const allLessons = t.chapters.flatMap((c) => c.lessons);
@@ -93,21 +109,47 @@ export default async function HomePage() {
               <SearchBar topics={topicCards} />
             </div>
 
-            <div className="glass glow-border rounded-2xl p-6">
-              <p className="mb-1 text-xs font-semibold uppercase tracking-wide text-spy-amber">The Lab</p>
-              <p className="mb-4 text-lg font-semibold">Run real code, right in the browser.</p>
-              <pre className="overflow-x-auto rounded-xl border border-border/60 bg-[#0d1117] p-4 text-xs text-foreground/90">
-                <code>{`function demo() {
+            {session?.user && lastProgress?.lesson ? (
+              <div className="glass glow-border rounded-2xl p-6">
+                <div className="mb-4 flex items-center justify-between">
+                  <p className="text-xs font-semibold uppercase tracking-wide text-spy-amber">
+                    Continue where you left off
+                  </p>
+                  {!!streakUser?.currentStreak && (
+                    <span className="flex items-center gap-1 text-sm font-semibold text-spy-amber">
+                      <Flame className="h-4 w-4" /> {streakUser.currentStreak}-day streak
+                    </span>
+                  )}
+                </div>
+                <p className="mb-1 text-sm text-muted-foreground">
+                  {lastProgress.lesson.chapter.topic.title}
+                </p>
+                <p className="mb-5 text-xl font-semibold">{lastProgress.lesson.title}</p>
+                <Link
+                  href={`/case-files/${lastProgress.lesson.chapter.topic.slug}/${lastProgress.lesson.slug}`}
+                >
+                  <Button className="w-full">
+                    Resume Mission <ArrowRight className="h-4 w-4" />
+                  </Button>
+                </Link>
+              </div>
+            ) : (
+              <div className="glass glow-border rounded-2xl p-6">
+                <p className="mb-1 text-xs font-semibold uppercase tracking-wide text-spy-amber">The Lab</p>
+                <p className="mb-4 text-lg font-semibold">Run real code, right in the browser.</p>
+                <pre className="overflow-x-auto rounded-xl border border-border/60 bg-[#0d1117] p-4 text-xs text-foreground/90">
+                  <code>{`function demo() {
   console.log("Welcome, Agent.");
 }
 
 demo();`}</code>
-              </pre>
-              <p className="mt-4 text-sm text-muted-foreground">
-                Every case file ships with a live Monaco editor, sandboxed preview, real terminal, and an
-                AI hint on request.
-              </p>
-            </div>
+                </pre>
+                <p className="mt-4 text-sm text-muted-foreground">
+                  Every case file ships with a live Monaco editor, sandboxed preview, real terminal, and an
+                  AI hint on request.
+                </p>
+              </div>
+            )}
           </div>
         </section>
 

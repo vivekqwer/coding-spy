@@ -13,21 +13,25 @@ enum Role {
 }
 
 model User {
-  id            String    @id @default(cuid())
-  name          String?
-  email         String    @unique
-  emailVerified DateTime?
-  passwordHash  String?
-  role          Role      @default(LEARNER)
-  image         String?
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
+  id             String    @id @default(cuid())
+  name           String?
+  email          String    @unique
+  emailVerified  DateTime?
+  passwordHash   String?
+  role           Role      @default(LEARNER)
+  image          String?
+  currentStreak  Int       @default(0)
+  longestStreak  Int       @default(0)
+  lastActiveAt   DateTime?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
 
   accounts     Account[]
   sessions     Session[]
   progress     Progress[]
   quizResults  QuizResult[]
   certificates Certificate[]
+  notes        Note[]
 }
 
 model Account {
@@ -108,6 +112,7 @@ model Lesson {
 
   chapter  Chapter    @relation(fields: [chapterId], references: [id], onDelete: Cascade)
   progress Progress[]
+  notes    Note[]
 
   @@unique([chapterId, slug])
 }
@@ -181,4 +186,17 @@ model Certificate {
   topic Topic @relation(fields: [topicId], references: [id], onDelete: Cascade)
 
   @@unique([userId, topicId])
+}
+
+model Note {
+  id        String   @id @default(cuid())
+  userId    String
+  lessonId  String
+  content   String   @db.Text
+  updatedAt DateTime @updatedAt
+
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  lesson Lesson @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, lessonId])
 }

@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { requireUser } from "@/lib/requireAdmin";
 import { prisma } from "@/lib/prisma";
+import { recordActivity } from "@/lib/streak";
 
 export async function POST(req: Request, { params }: { params: { id: string } }) {
   const user = await requireUser();
@@ -28,6 +29,8 @@ export async function POST(req: Request, { params }: { params: { id: string } })
   await prisma.quizResult.create({
     data: { userId: user.id, quizId: quiz.id, score, passed },
   });
+
+  await recordActivity(user.id);
 
   return NextResponse.json({ score, passed, results });
 }

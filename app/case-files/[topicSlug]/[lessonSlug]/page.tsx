@@ -10,6 +10,8 @@ import { Playground } from "@/components/playground/playground";
 import { MarkComplete } from "@/components/mark-complete";
 import { Quiz } from "@/components/quiz";
 import { Progress } from "@/components/ui/progress";
+import { NotesPanel } from "@/components/notes-panel";
+import { recordActivity } from "@/lib/streak";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 
 export default async function LessonPage({
@@ -38,15 +40,31 @@ export default async function LessonPage({
 
   let progress: { completed: boolean; savedCode: string | null } | null = null;
   let clearance = 0;
+  let noteContent = "";
   if (session?.user) {
     progress = await prisma.progress.findUnique({
       where: { userId_lessonId: { userId: session.user.id, lessonId: lesson.id } },
       select: { completed: true, savedCode: true },
     });
+
+    // Touch (or create) the progress row so "continue where you left off" reflects this visit.
+    await prisma.progress.upsert({
+      where: { userId_lessonId: { userId: session.user.id, lessonId: lesson.id } },
+      update: {},
+      create: { userId: session.user.id, lessonId: lesson.id },
+    });
+    await recordActivity(session.user.id);
+
     const completedCount = await prisma.progress.count({
       where: { userId: session.user.id, lessonId: { in: flatLessons.map((l) => l.id) }, completed: true },
     });
     clearance = Math.round((completedCount / flatLessons.length) * 100);
+
+    const note = await prisma.note.findUnique({
+      where: { userId_lessonId: { userId: session.user.id, lessonId: lesson.id } },
+      select: { content: true },
+    });
+    noteContent = note?.content ?? "";
   }
 
   const topicQuiz = topic.quizzes[0];
@@ -78,6 +96,7 @@ export default async function LessonPage({
 
             <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
               <div className="min-w-0">
+                {session?.user && <NotesPanel lessonId={lesson.id} initialContent={noteContent} />}
                 <LessonMarkdown content={lesson.contentMarkdown} />
               </div>
               <div className="h-[600px] lg:sticky lg:top-20 lg:h-[calc(100vh-6rem)]">
