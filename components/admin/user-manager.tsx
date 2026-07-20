@@ -3,9 +3,10 @@
 import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
-import { Search, Trash2, Download } from "lucide-react";
-import { Input } from "@/components/ui/input";
+import { Search, Trash2, Download, UserPlus } from "lucide-react";
+import { Input, Label } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
 import { formatDate } from "@/lib/utils";
 import { ROLE_LABELS } from "@/lib/permissions";
 
@@ -42,6 +43,13 @@ export function UserManager({
   const [query, setQuery] = useState("");
   const [busyId, setBusyId] = useState<string | null>(null);
 
+  const [showAddForm, setShowAddForm] = useState(false);
+  const [newName, setNewName] = useState("");
+  const [newEmail, setNewEmail] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [newRole, setNewRole] = useState<Role>("LEARNER");
+  const [adding, setAdding] = useState(false);
+
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
     if (!q) return users;
@@ -49,6 +57,33 @@ export function UserManager({
       (u) => u.email.toLowerCase().includes(q) || (u.name ?? "").toLowerCase().includes(q)
     );
   }, [users, query]);
+
+  async function addAgent() {
+    if (!newName.trim() || !newEmail.trim() || newPassword.length < 8) {
+      toast.error("Name, email, and an 8+ character password are required.");
+      return;
+    }
+    setAdding(true);
+    const res = await fetch("/api/admin/users", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ name: newName, email: newEmail, password: newPassword, role: newRole }),
+    });
+    const data = await res.json();
+    setAdding(false);
+    if (!res.ok) {
+      toast.error(data.error ?? "Could not create agent.");
+      return;
+    }
+    setUsers((us) => [data, ...us]);
+    toast.success(`${newName} added as ${ROLE_LABELS[newRole]}. They can sign in with the password you set.`);
+    setNewName("");
+    setNewEmail("");
+    setNewPassword("");
+    setNewRole("LEARNER");
+    setShowAddForm(false);
+    router.refresh();
+  }
 
   async function changeRole(user: AgentRow, nextRole: Role) {
     if (user.id === currentUserId) {
@@ -64,9 +99,10 @@ export function UserManager({
       headers: { "content-type": "application/json" },
       body: JSON.stringify({ role: nextRole }),
     });
+    const data = await res.json();
     setBusyId(null);
     if (!res.ok) {
-      toast.error("Could not update role.");
+      toast.error(data.error ?? "Could not update role.");
       return;
     }
     setUsers((us) => us.map((u) => (u.id === user.id ? { ...u, role: nextRole } : u)));
@@ -84,9 +120,10 @@ export function UserManager({
 
     setBusyId(user.id);
     const res = await fetch(`/api/admin/users/${user.id}`, { method: "DELETE" });
+    const data = await res.json().catch(() => ({}));
     setBusyId(null);
     if (!res.ok) {
-      toast.error("Could not delete agent.");
+      toast.error(data.error ?? "Could not delete agent.");
       return;
     }
     setUsers((us) => us.filter((u) => u.id !== user.id));
@@ -106,12 +143,68 @@ export function UserManager({
             className="pl-9"
           />
         </div>
-        <a href="/api/admin/users/export">
-          <Button variant="outline" size="sm">
-            <Download className="h-3.5 w-3.5" /> Export to Excel
+        <div className="flex gap-2">
+          <Button size="sm" onClick={() => setShowAddForm((s) => !s)}>
+            <UserPlus className="h-3.5 w-3.5" /> Add Agent
           </Button>
-        </a>
+          <a href="/api/admin/users/export">
+            <Button variant="outline" size="sm">
+              <Download className="h-3.5 w-3.5" /> Export to Excel
+            </Button>
+          </a>
+        </div>
       </div>
+
+      {showAddForm && (
+        <Card>
+          <CardContent className="grid grid-cols-1 gap-3 pt-5 sm:grid-cols-2 lg:grid-cols-4 lg:items-end">
+            <div>
+              <Label>Name</Label>
+              <Input value={newName} onChange={(e) => setNewName(e.target.value)} placeholder="Agent name" />
+            </div>
+            <div>
+              <Label>Email</Label>
+              <Input
+                type="email"
+                value={newEmail}
+                onChange={(e) => setNewEmail(e.target.value)}
+                placeholder="agent@example.com"
+              />
+            </div>
+            <div>
+              <Label>Password</Label>
+              <Input
+                type="password"
+                value={newPassword}
+                onChange={(e) => setNewPassword(e.target.value)}
+                placeholder="8+ characters"
+              />
+            </div>
+            <div>
+              <Label>Role</Label>
+              <select
+                value={newRole}
+                onChange={(e) => setNewRole(e.target.value as Role)}
+                className="h-10 w-full rounded-lg border border-border bg-background/60 px-2 text-sm"
+              >
+                {ALL_ROLES.map((r) => (
+                  <option key={r} value={r}>
+                    {ROLE_LABELS[r]}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div className="flex gap-2 lg:col-span-4">
+              <Button onClick={addAgent} disabled={adding}>
+                {adding ? "Creating…" : "Create Agent"}
+              </Button>
+              <Button variant="outline" onClick={() => setShowAddForm(false)}>
+                Cancel
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
       <div className="overflow-x-auto rounded-2xl border border-border/60">
         <table className="w-full text-sm">
