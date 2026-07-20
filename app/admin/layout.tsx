@@ -6,6 +6,7 @@ import { LogoWithWordmark } from "@/components/logo";
 import { canAccessSection, isStaffRole, ROLE_LABELS } from "@/lib/permissions";
 import { Badge } from "@/components/ui/badge";
 import { LayoutDashboard, BookOpen, Users, Award, Search, Share2, Code2, Home, CreditCard } from "lucide-react";
+import { AdminMobileNav } from "@/components/admin/admin-mobile-nav";
 
 const NAV_ITEMS = [
   { href: "/admin", label: "Overview", icon: LayoutDashboard, section: "overview" as const },
@@ -26,7 +27,11 @@ export default async function AdminLayout({ children }: { children: React.ReactN
   const visibleItems = NAV_ITEMS.filter((item) => canAccessSection(session.user.role, item.section));
 
   return (
-    <div className="flex min-h-screen bg-background">
+    <div className="min-h-screen bg-background md:flex">
+      <AdminMobileNav
+        items={visibleItems.map((item) => ({ href: item.href, label: item.label, section: item.section }))}
+        roleLabel={ROLE_LABELS[session.user.role]}
+      />
       <aside className="hidden w-56 shrink-0 border-r border-border/60 p-4 md:block">
         <Link href="/" className="mb-4 block">
           <LogoWithWordmark />
