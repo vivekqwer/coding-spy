@@ -7,6 +7,7 @@ import { SearchBar } from "@/components/search-bar";
 import { FeaturedBand } from "@/components/featured-band";
 import { TopicTile } from "@/components/topic-tile";
 import { SiteFooter } from "@/components/site-footer";
+import { HomepageCustomSection } from "@/components/homepage-custom-section";
 import { Button } from "@/components/ui/button";
 import type { TopicCardData } from "@/lib/types";
 import { getSiteSettings } from "@/lib/site-settings";
@@ -19,6 +20,10 @@ const FEATURED_COUNT = 11;
 export default async function HomePage() {
   const session = await getServerSession(authOptions);
   const settings = await getSiteSettings();
+  const customSections = await prisma.homepageSection.findMany({
+    where: { isVisible: true },
+    orderBy: { order: "asc" },
+  });
 
   const [topics, streakUser, lastProgress] = await Promise.all([
     prisma.topic.findMany({
@@ -178,6 +183,11 @@ demo();`}</code>
             </div>
           </section>
         )}
+
+        {/* Custom homepage sections (admin-managed) */}
+        {customSections.map((section, i) => (
+          <HomepageCustomSection key={section.id} section={section} reverse={i % 2 === 1} />
+        ))}
 
         {/* CTA banner */}
         <section className="border-y border-border/60 bg-spy-gradient/10 py-14 text-center">

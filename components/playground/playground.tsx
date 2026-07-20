@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { buildHtmlDocument } from "@/components/playground/iframe-runner";
 import { LabTerminal, type TerminalHandle } from "@/components/playground/terminal";
 import { runPython } from "@/components/playground/pyodide-runner";
+import { useMediaQuery } from "@/lib/use-media-query";
 
 const MonacoEditor = dynamic(() => import("@monaco-editor/react"), { ssr: false });
 
@@ -41,6 +42,7 @@ export function Playground({
   const [iframeSrc, setIframeSrc] = useState("");
   const terminalRef = useRef<TerminalHandle | null>(null);
   const canRun = runnable && RUNNABLE_LANGUAGES.has(language);
+  const isMobile = useMediaQuery("(max-width: 767px)");
 
   useEffect(() => {
     function handler(e: MessageEvent) {
@@ -164,7 +166,7 @@ export function Playground({
 
       <PanelGroup direction="vertical" className="flex-1">
         <Panel defaultSize={60} minSize={20}>
-          <PanelGroup direction="horizontal">
+          <PanelGroup direction={isMobile ? "vertical" : "horizontal"}>
             <Panel defaultSize={50} minSize={20}>
               <MonacoEditor
                 language={monacoLanguage(language)}
@@ -176,7 +178,9 @@ export function Playground({
             </Panel>
             {canRun && language !== "python" && (
               <>
-                <PanelResizeHandle className="w-1 bg-border/60 hover:bg-spy-cyan/60" />
+                <PanelResizeHandle
+                  className={isMobile ? "h-1 bg-border/60 hover:bg-spy-cyan/60" : "w-1 bg-border/60 hover:bg-spy-cyan/60"}
+                />
                 <Panel defaultSize={50} minSize={20}>
                   <iframe
                     title="Lab preview"

@@ -47,7 +47,7 @@ export function AiTutorWidget() {
   return (
     <>
       {open && (
-        <div className="fixed bottom-24 left-4 z-50 flex h-[28rem] w-[22rem] flex-col overflow-hidden rounded-2xl border border-border/60 bg-background shadow-2xl">
+        <div className="fixed bottom-24 left-4 right-4 z-50 flex h-[70vh] max-h-[28rem] w-auto flex-col overflow-hidden rounded-2xl border border-border/60 bg-background shadow-2xl sm:right-auto sm:w-[22rem]">
           <div className="flex items-center justify-between border-b border-border/60 bg-spy-gradient px-4 py-3 text-white">
             <span className="flex items-center gap-2 text-sm font-semibold">
               <Sparkles className="h-4 w-4" /> AI Tutor

@@ -4,7 +4,7 @@ import path from "path";
 import { requireSection } from "@/lib/requireAdmin";
 
 export async function POST(req: Request) {
-  const admin = await requireSection("topics");
+  const admin = (await requireSection("topics")) ?? (await requireSection("homepage"));
   if (!admin) return NextResponse.json({ error: "Forbidden" }, { status: 403 });
 
   const formData = await req.formData();

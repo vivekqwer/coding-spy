@@ -38,37 +38,40 @@ export function NavCaseFilesMenu({ topics }: { topics: NavTopic[] }) {
       </button>
 
       {open && (
-        <div className="glass absolute left-1/2 top-full z-50 mt-3 w-[min(90vw,64rem)] -translate-x-1/2 rounded-2xl p-6 shadow-2xl">
-          <div className="grid grid-cols-2 gap-6 sm:grid-cols-3 lg:grid-cols-4">
-            {groups.map((group) => (
-              <div key={group.name}>
-                <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-spy-amber">{group.name}</p>
-                <ul className="space-y-1.5">
-                  {group.topics.map((t) => (
-                    <li key={t.slug}>
-                      <Link
-                        href={`/case-files/${t.slug}`}
-                        onClick={() => setOpen(false)}
-                        className="text-sm text-foreground/90 hover:text-spy-cyan"
-                      >
-                        {t.title}
-                      </Link>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            ))}
+        <>
+          <div className="fixed inset-0 z-40 bg-black/40" onClick={() => setOpen(false)} aria-hidden="true" />
+          <div className="fixed left-1/2 top-[7rem] z-50 max-h-[75vh] w-[min(94vw,64rem)] -translate-x-1/2 overflow-y-auto rounded-2xl border border-border bg-background p-6 shadow-2xl">
+            <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
+              {groups.map((group) => (
+                <div key={group.name}>
+                  <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-spy-amber">{group.name}</p>
+                  <ul className="space-y-1.5">
+                    {group.topics.map((t) => (
+                      <li key={t.slug}>
+                        <Link
+                          href={`/case-files/${t.slug}`}
+                          onClick={() => setOpen(false)}
+                          className="text-sm text-foreground/90 hover:text-spy-cyan"
+                        >
+                          {t.title}
+                        </Link>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              ))}
+            </div>
+            <div className="mt-5 border-t border-border/60 pt-4 text-right">
+              <Link
+                href="/#case-files"
+                onClick={() => setOpen(false)}
+                className="text-sm font-semibold text-spy-cyan hover:underline"
+              >
+                View all 47 case files →
+              </Link>
+            </div>
           </div>
-          <div className="mt-5 border-t border-border/60 pt-4 text-right">
-            <Link
-              href="/#case-files"
-              onClick={() => setOpen(false)}
-              className="text-sm font-semibold text-spy-cyan hover:underline"
-            >
-              View all 47 case files →
-            </Link>
-          </div>
-        </div>
+        </>
       )}
     </div>
   );

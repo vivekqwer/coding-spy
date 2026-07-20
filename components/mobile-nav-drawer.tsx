@@ -1,9 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import Link from "next/link";
 import { signOut } from "next-auth/react";
-import { Menu, X } from "lucide-react";
+import Fuse from "fuse.js";
+import { Menu, X, Search } from "lucide-react";
 import { categorize } from "@/lib/topic-categories";
 import type { NavTopic } from "@/lib/types";
 import { Button } from "@/components/ui/button";
@@ -18,7 +19,11 @@ export function MobileNavDrawer({
   isAdmin: boolean;
 }) {
   const [open, setOpen] = useState(false);
+  const [query, setQuery] = useState("");
   const groups = categorize(topics);
+
+  const fuse = useMemo(() => new Fuse(topics, { keys: ["title"], threshold: 0.35 }), [topics]);
+  const results = query.trim() ? fuse.search(query).slice(0, 8).map((r) => r.item) : [];
 
   return (
     <>
@@ -39,6 +44,37 @@ export function MobileNavDrawer({
               <button onClick={() => setOpen(false)} aria-label="Close menu">
                 <X className="h-5 w-5" />
               </button>
+            </div>
+
+            <div className="border-b border-border/60 p-4">
+              <div className="flex items-center gap-2 rounded-lg border border-border bg-background/60 px-3 py-2">
+                <Search className="h-4 w-4 shrink-0 text-muted-foreground" />
+                <input
+                  value={query}
+                  onChange={(e) => setQuery(e.target.value)}
+                  placeholder="Search case files…"
+                  aria-label="Search case files"
+                  className="w-full bg-transparent text-sm outline-none placeholder:text-muted-foreground"
+                />
+              </div>
+              {results.length > 0 && (
+                <ul className="mt-2 overflow-hidden rounded-lg border border-border/60">
+                  {results.map((t) => (
+                    <li key={t.slug}>
+                      <Link
+                        href={`/case-files/${t.slug}`}
+                        onClick={() => {
+                          setQuery("");
+                          setOpen(false);
+                        }}
+                        className="block px-3 py-2 text-sm hover:bg-card/60"
+                      >
+                        {t.title}
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              )}
             </div>
 
             <div className="space-y-1 border-b border-border/60 p-4">
