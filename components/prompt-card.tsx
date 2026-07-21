@@ -32,11 +32,7 @@ function LiveThumbnail({ html, title }: { html: string; title: string }) {
   }, []);
 
   return (
-    <div
-      ref={containerRef}
-      className="relative w-full overflow-hidden bg-white"
-      style={{ aspectRatio: `${VIRTUAL_WIDTH} / ${VIRTUAL_HEIGHT}` }}
-    >
+    <div ref={containerRef} className="relative w-full overflow-hidden bg-white">
       <div
         style={{
           width: VIRTUAL_WIDTH,
@@ -72,25 +68,28 @@ export function PromptCard({ prompt }: { prompt: Prompt }) {
 
   return (
     <>
-      <div className="glass group flex h-full flex-col overflow-hidden rounded-2xl">
-        <div className="relative">
-          {prompt.previewHtml ? (
-            <LiveThumbnail html={prompt.previewHtml} title={prompt.title} />
-          ) : (
-            <div
-              className="flex items-center justify-center bg-gradient-to-br from-spy-cyan/20 to-spy-violet/20"
-              style={{ aspectRatio: `${VIRTUAL_WIDTH} / ${VIRTUAL_HEIGHT}` }}
-            >
-              <Sparkles className="h-8 w-8 text-spy-violet/60" />
-            </div>
-          )}
+      <div className="group flex h-full flex-col overflow-hidden rounded-2xl border border-border/60 bg-card/60 shadow-sm backdrop-blur-xl transition-all duration-300 hover:-translate-y-1.5 hover:border-spy-cyan/50 hover:shadow-[0_20px_50px_-15px_rgba(34,211,238,0.35)]">
+        <div
+          className="relative overflow-hidden"
+          style={{ aspectRatio: `${VIRTUAL_WIDTH} / ${VIRTUAL_HEIGHT}` }}
+        >
+          <div className="absolute inset-0 transition-transform duration-500 group-hover:scale-[1.06]">
+            {prompt.previewHtml ? (
+              <LiveThumbnail html={prompt.previewHtml} title={prompt.title} />
+            ) : (
+              <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-spy-cyan/20 via-spy-violet/15 to-spy-amber/10">
+                <Sparkles className="h-8 w-8 text-spy-violet/60" />
+              </div>
+            )}
+          </div>
+          <div className="pointer-events-none absolute inset-x-0 bottom-0 h-16 bg-gradient-to-t from-black/50 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
           {prompt.previewHtml && (
             <button
               onClick={() => setShowPreview(true)}
-              className="absolute inset-0 flex items-center justify-center bg-black/0 opacity-0 transition group-hover:bg-black/40 group-hover:opacity-100"
+              className="absolute inset-0 flex items-center justify-center opacity-0 transition group-hover:opacity-100"
               aria-label="Expand preview"
             >
-              <span className="flex items-center gap-1.5 rounded-full bg-background/90 px-3 py-1.5 text-xs font-semibold">
+              <span className="flex items-center gap-1.5 rounded-full bg-background/90 px-3 py-1.5 text-xs font-semibold shadow-lg">
                 <Maximize2 className="h-3.5 w-3.5" /> Expand
               </span>
             </button>
@@ -99,7 +98,7 @@ export function PromptCard({ prompt }: { prompt: Prompt }) {
 
         <div className="flex flex-1 flex-col p-4">
           <Badge className="mb-2 w-fit border-spy-cyan/40 bg-spy-cyan/10 text-spy-cyan">{prompt.category}</Badge>
-          <h3 className="mb-2 font-semibold">{prompt.title}</h3>
+          <h3 className="mb-2 font-semibold transition-colors group-hover:text-spy-cyan">{prompt.title}</h3>
           <p className="mb-4 line-clamp-3 flex-1 text-xs leading-relaxed text-muted-foreground">
             {prompt.promptText}
           </p>
