@@ -26,8 +26,8 @@ export default async function PromptsPage({
           <div className="container">
             <h1 className="mb-2 text-3xl font-extrabold tracking-tight sm:text-4xl">AI Prompt Library</h1>
             <p className="max-w-xl text-muted-foreground">
-              Ready-to-use prompts for HTML, React, 3D scroll animations, and more. Copy any prompt into your
-              favorite AI to get real, working code instantly — or press Animate to preview it first.
+              Ready-to-use prompts for HTML, React, 3D scroll animations, and more. Every thumbnail below is a
+              live render of the exact code behind it — copy the prompt into any AI to get that same result.
             </p>
           </div>
         </section>
@@ -36,7 +36,7 @@ export default async function PromptsPage({
           {prompts.length === 0 ? (
             <div className="glass rounded-2xl p-10 text-center text-muted-foreground">No intel yet, Agent.</div>
           ) : (
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
               {prompts.map((p) => (
                 <PromptCard
                   key={p.id}
