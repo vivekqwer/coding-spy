@@ -12,6 +12,7 @@ import {
   Code2,
   Home,
   CreditCard,
+  Sparkles,
   Menu,
   X,
 } from "lucide-react";
@@ -23,6 +24,7 @@ const ICONS: Record<AdminSection, typeof LayoutDashboard> = {
   overview: LayoutDashboard,
   homepage: Home,
   topics: BookOpen,
+  prompts: Sparkles,
   seo: Search,
   social: Share2,
   developer: Code2,

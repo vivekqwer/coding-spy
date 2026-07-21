@@ -9,7 +9,8 @@ export type AdminSection =
   | "social"
   | "developer"
   | "homepage"
-  | "payments";
+  | "payments"
+  | "prompts";
 
 const SECTION_ACCESS: Record<AdminSection, Role[]> = {
   overview: ["ADMIN", "SEO_MANAGER", "SOCIAL_MEDIA_MANAGER", "DEVELOPER"],
@@ -21,6 +22,7 @@ const SECTION_ACCESS: Record<AdminSection, Role[]> = {
   developer: ["ADMIN", "DEVELOPER"],
   homepage: ["ADMIN", "SOCIAL_MEDIA_MANAGER"],
   payments: ["ADMIN"],
+  prompts: ["ADMIN", "DEVELOPER"],
 };
 
 export function canAccessSection(role: Role | undefined, section: AdminSection): boolean {

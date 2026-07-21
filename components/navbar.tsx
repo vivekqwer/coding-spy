@@ -9,7 +9,7 @@ import { NavCaseFilesMenu } from "@/components/nav-case-files-menu";
 import { NavTopicStrip } from "@/components/nav-topic-strip";
 import { NavSearch } from "@/components/nav-search";
 import { MobileNavDrawer } from "@/components/mobile-nav-drawer";
-import { Award } from "lucide-react";
+import { Award, Sparkles } from "lucide-react";
 
 export async function Navbar() {
   const [session, topics] = await Promise.all([
@@ -39,6 +39,12 @@ export async function Navbar() {
               className="flex items-center gap-1 text-sm font-medium text-muted-foreground hover:text-foreground"
             >
               <Award className="h-3.5 w-3.5" /> Certifications
+            </Link>
+            <Link
+              href="/prompts"
+              className="flex items-center gap-1 text-sm font-medium text-muted-foreground hover:text-foreground"
+            >
+              <Sparkles className="h-3.5 w-3.5" /> AI Prompt
             </Link>
             {isLoggedIn && (
               <Link href="/profile" className="text-sm font-medium text-muted-foreground hover:text-foreground">

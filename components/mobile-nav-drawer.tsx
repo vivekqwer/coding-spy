@@ -4,7 +4,7 @@ import { useMemo, useState } from "react";
 import Link from "next/link";
 import { signOut } from "next-auth/react";
 import Fuse from "fuse.js";
-import { Menu, X, Search } from "lucide-react";
+import { Menu, X, Search, Sparkles } from "lucide-react";
 import { categorize } from "@/lib/topic-categories";
 import type { NavTopic } from "@/lib/types";
 import { Button } from "@/components/ui/button";
@@ -80,6 +80,13 @@ export function MobileNavDrawer({
             <div className="space-y-1 border-b border-border/60 p-4">
               <Link href="/" onClick={() => setOpen(false)} className="block py-1.5 text-sm font-medium">
                 Home
+              </Link>
+              <Link
+                href="/prompts"
+                onClick={() => setOpen(false)}
+                className="flex items-center gap-1.5 py-1.5 text-sm font-medium"
+              >
+                <Sparkles className="h-3.5 w-3.5" /> AI Prompt
               </Link>
               {isLoggedIn && (
                 <Link href="/profile" onClick={() => setOpen(false)} className="block py-1.5 text-sm font-medium">
