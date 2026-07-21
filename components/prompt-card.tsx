@@ -20,15 +20,54 @@ const VIRTUAL_HEIGHT = 640;
 function LiveThumbnail({ html, title }: { html: string; title: string }) {
   const containerRef = useRef<HTMLDivElement>(null);
   const [scale, setScale] = useState(0.3);
+  // Only mount the (heavy) iframe once the card scrolls near the viewport.
+  // Rendering all cards' iframes at once would freeze the page.
+  const [visible, setVisible] = useState(false);
 
   useEffect(() => {
     const el = containerRef.current;
     if (!el) return;
     const update = () => setScale(el.clientWidth / VIRTUAL_WIDTH);
     update();
-    const observer = new ResizeObserver(update);
-    observer.observe(el);
-    return () => observer.disconnect();
+    const resize = new ResizeObserver(update);
+    resize.observe(el);
+
+    // Mount immediately if the card is already near/in the viewport — this is
+    // synchronous and does not rely on IntersectionObserver (which some
+    // environments throttle), so above-the-fold cards always render.
+    const near = () => {
+      const r = el.getBoundingClientRect();
+      return r.top < window.innerHeight + 400 && r.bottom > -400;
+    };
+    if (near()) setVisible(true);
+
+    // For cards further down, mount them as they scroll close to the viewport.
+    const io = new IntersectionObserver(
+      (entries) => {
+        if (entries.some((e) => e.isIntersecting)) {
+          setVisible(true);
+          io.disconnect();
+        }
+      },
+      { rootMargin: "400px" }
+    );
+    io.observe(el);
+
+    // Fallback for environments where IntersectionObserver never fires:
+    // reveal on scroll using a cheap bounding-box check.
+    const onScroll = () => {
+      if (near()) {
+        setVisible(true);
+        window.removeEventListener("scroll", onScroll);
+      }
+    };
+    window.addEventListener("scroll", onScroll, { passive: true });
+
+    return () => {
+      resize.disconnect();
+      io.disconnect();
+      window.removeEventListener("scroll", onScroll);
+    };
   }, []);
 
   return (
@@ -41,15 +80,23 @@ function LiveThumbnail({ html, title }: { html: string; title: string }) {
           transformOrigin: "top left",
         }}
       >
-        <iframe
-          title={`${title} thumbnail`}
-          width={VIRTUAL_WIDTH}
-          height={VIRTUAL_HEIGHT}
-          className="pointer-events-none border-0"
-          sandbox="allow-scripts"
-          srcDoc={html}
-          tabIndex={-1}
-        />
+        {visible ? (
+          <iframe
+            title={`${title} thumbnail`}
+            width={VIRTUAL_WIDTH}
+            height={VIRTUAL_HEIGHT}
+            className="pointer-events-none border-0"
+            sandbox="allow-scripts"
+            srcDoc={html}
+            loading="lazy"
+            tabIndex={-1}
+          />
+        ) : (
+          <div
+            style={{ width: VIRTUAL_WIDTH, height: VIRTUAL_HEIGHT }}
+            className="bg-gradient-to-br from-slate-100 to-slate-200"
+          />
+        )}
       </div>
     </div>
   );
