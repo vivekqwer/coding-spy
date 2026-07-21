@@ -156,6 +156,24 @@ export function PromptsManager({ initialPrompts }: { initialPrompts: PromptRow[]
                   </div>
                   {expanded[p.id] && (
                     <div className="mt-3 space-y-2">
+                      <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+                        <div>
+                          <Label>Title</Label>
+                          <Input
+                            value={p.title}
+                            onChange={(e) => setPrompts((ps) => ps.map((x) => (x.id === p.id ? { ...x, title: e.target.value } : x)))}
+                            onBlur={(e) => patchPrompt(p.id, { title: e.target.value })}
+                          />
+                        </div>
+                        <div>
+                          <Label>Category</Label>
+                          <Input
+                            value={p.category}
+                            onChange={(e) => setPrompts((ps) => ps.map((x) => (x.id === p.id ? { ...x, category: e.target.value } : x)))}
+                            onBlur={(e) => patchPrompt(p.id, { category: e.target.value })}
+                          />
+                        </div>
+                      </div>
                       <div>
                         <Label>Prompt Text</Label>
                         <textarea
