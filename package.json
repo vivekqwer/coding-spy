@@ -12,6 +12,7 @@
     "db:push": "prisma db push",
     "db:migrate": "prisma migrate dev",
     "db:seed": "tsx prisma/seed.ts",
+    "db:seed:all": "tsx prisma/seed.ts && tsx prisma/seed-prompts.ts && tsx prisma/seed-prompts-2.ts && tsx prisma/seed-prompts-3.ts && tsx prisma/seed-prompts-4.ts && tsx prisma/seed-prompts-5.ts && tsx prisma/seed-prompts-6.ts && tsx prisma/seed-prompts-7.ts && tsx prisma/seed-prompts-8.ts && tsx prisma/seed-prompts-9.ts && tsx prisma/seed-prompts-10.ts && tsx prisma/add-previews-1.ts && tsx prisma/add-previews-2.ts && tsx prisma/add-previews-3.ts",
     "postinstall": "prisma generate"
   },
   "prisma": {
