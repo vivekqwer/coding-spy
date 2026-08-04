@@ -72,6 +72,12 @@ export default async function HomePage() {
   const featured = topicCards.slice(0, FEATURED_COUNT);
   const rest = topicCards.slice(FEATURED_COUNT);
 
+  const heroFeatures = settings.heroFeatures
+    .split("\n")
+    .map((f) => f.trim())
+    .filter(Boolean);
+  const featureIcons = [ShieldCheck, Terminal, Award, ShieldCheck];
+
   return (
     <>
       <Navbar />
@@ -91,28 +97,25 @@ export default async function HomePage() {
                 <br />
                 <span className="font-semibold text-spy-cyan">{settings.heroTagline}</span>
               </p>
-              <ul className="mb-6 grid max-w-md grid-cols-2 gap-x-4 gap-y-2 text-sm text-muted-foreground">
-                {[
-                  ["Clearance Level tracking", ShieldCheck],
-                  ["Live code playground", Terminal],
-                  ["Agent Certification", Award],
-                  ["AI-powered hints", ShieldCheck],
-                ].map(([label, Icon]) => {
-                  const IconComp = Icon as React.ComponentType<{ className?: string }>;
-                  return (
-                    <li key={label as string} className="flex items-center gap-2">
-                      <IconComp className="h-4 w-4 text-spy-cyan" /> {label as string}
-                    </li>
-                  );
-                })}
-              </ul>
+              {heroFeatures.length > 0 && (
+                <ul className="mb-6 grid max-w-md grid-cols-2 gap-x-4 gap-y-2 text-sm text-muted-foreground">
+                  {heroFeatures.map((label, i) => {
+                    const IconComp = featureIcons[i % featureIcons.length];
+                    return (
+                      <li key={label} className="flex items-center gap-2">
+                        <IconComp className="h-4 w-4 text-spy-cyan" /> {label}
+                      </li>
+                    );
+                  })}
+                </ul>
+              )}
               <div className="mb-6 flex flex-wrap gap-3">
-                <Link href="/signup">
-                  <Button size="lg">Request Clearance</Button>
+                <Link href={settings.heroPrimaryCtaHref}>
+                  <Button size="lg">{settings.heroPrimaryCtaLabel}</Button>
                 </Link>
-                <Link href="#case-files">
+                <Link href={settings.heroSecondaryCtaHref}>
                   <Button size="lg" variant="outline">
-                    Browse Case Files
+                    {settings.heroSecondaryCtaLabel}
                   </Button>
                 </Link>
               </div>
@@ -145,19 +148,12 @@ export default async function HomePage() {
               </div>
             ) : (
               <div className="glass glow-border rounded-2xl p-6">
-                <p className="mb-1 text-xs font-semibold uppercase tracking-wide text-spy-amber">The Lab</p>
-                <p className="mb-4 text-lg font-semibold">Run real code, right in the browser.</p>
+                <p className="mb-1 text-xs font-semibold uppercase tracking-wide text-spy-amber">{settings.labCardLabel}</p>
+                <p className="mb-4 text-lg font-semibold">{settings.labCardTitle}</p>
                 <pre className="overflow-x-auto rounded-xl border border-border/60 bg-[#0d1117] p-4 text-xs text-foreground/90">
-                  <code>{`function demo() {
-  console.log("Welcome, Agent.");
-}
-
-demo();`}</code>
+                  <code>{settings.labCardCode}</code>
                 </pre>
-                <p className="mt-4 text-sm text-muted-foreground">
-                  Every case file ships with a live Monaco editor, sandboxed preview, real terminal, and an
-                  AI hint on request.
-                </p>
+                <p className="mt-4 text-sm text-muted-foreground">{settings.labCardDescription}</p>
               </div>
             )}
           </div>
@@ -175,7 +171,7 @@ demo();`}</code>
         {/* Remaining topics grid */}
         {rest.length > 0 && (
           <section className="container py-16">
-            <h2 className="mb-6 text-2xl font-bold">More Case Files</h2>
+            <h2 className="mb-6 text-2xl font-bold">{settings.moreCaseFilesTitle}</h2>
             <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
               {rest.map((topic, i) => (
                 <TopicTile key={topic.slug} topic={topic} index={i} />
@@ -194,8 +190,8 @@ demo();`}</code>
           <div className="container">
             <h2 className="mb-3 text-2xl font-bold">{settings.ctaTitle}</h2>
             <p className="mb-6 text-muted-foreground">{settings.ctaSubtitle}</p>
-            <Link href="/signup">
-              <Button size="lg">Start Your First Mission</Button>
+            <Link href={settings.heroPrimaryCtaHref}>
+              <Button size="lg">{settings.ctaButtonLabel}</Button>
             </Link>
           </div>
         </section>

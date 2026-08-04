@@ -16,21 +16,37 @@ export async function PATCH(req: Request) {
   if (!staff) return NextResponse.json({ error: "Forbidden" }, { status: 403 });
 
   const body = await req.json().catch(() => ({}));
-  const { heroBadge, heroTitle, heroSubtitle, heroTagline, ctaTitle, ctaSubtitle } = body as Record<
-    string,
-    string | undefined
-  >;
+  const b = body as Record<string, string | undefined>;
+
+  // Whitelist of editable homepage text fields
+  const FIELDS = [
+    "heroBadge",
+    "heroTitle",
+    "heroSubtitle",
+    "heroTagline",
+    "heroPrimaryCtaLabel",
+    "heroPrimaryCtaHref",
+    "heroSecondaryCtaLabel",
+    "heroSecondaryCtaHref",
+    "heroFeatures",
+    "labCardLabel",
+    "labCardTitle",
+    "labCardCode",
+    "labCardDescription",
+    "moreCaseFilesTitle",
+    "ctaTitle",
+    "ctaSubtitle",
+    "ctaButtonLabel",
+  ] as const;
+
+  const update: Record<string, string> = {};
+  for (const f of FIELDS) {
+    if (b[f] !== undefined) update[f] = b[f] as string;
+  }
 
   const settings = await prisma.siteSettings.upsert({
     where: { id: "singleton" },
-    update: {
-      ...(heroBadge !== undefined ? { heroBadge } : {}),
-      ...(heroTitle !== undefined ? { heroTitle } : {}),
-      ...(heroSubtitle !== undefined ? { heroSubtitle } : {}),
-      ...(heroTagline !== undefined ? { heroTagline } : {}),
-      ...(ctaTitle !== undefined ? { ctaTitle } : {}),
-      ...(ctaSubtitle !== undefined ? { ctaSubtitle } : {}),
-    },
+    update,
     create: { id: "singleton" },
   });
 

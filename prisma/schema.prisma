@@ -257,8 +257,24 @@ model SiteSettings {
   heroTitle   String   @default("Decode. Learn. Master.")
   heroSubtitle String  @default("Free tutorials, live code, and hands-on missions.")
   heroTagline String   @default("No sign-up needed, just start learning.")
+  // Hero call-to-action buttons
+  heroPrimaryCtaLabel   String @default("Request Clearance")
+  heroPrimaryCtaHref    String @default("/signup")
+  heroSecondaryCtaLabel String @default("Browse Case Files")
+  heroSecondaryCtaHref  String @default("#case-files")
+  // Hero feature bullets — one per line
+  heroFeatures String @default("Clearance Level tracking\nLive code playground\nAgent Certification\nAI-powered hints")
+  // "The Lab" preview card
+  labCardLabel       String @default("The Lab")
+  labCardTitle       String @default("Run real code, right in the browser.")
+  labCardCode        String @default("function demo() {\n  console.log(\"Welcome, Agent.\");\n}\n\ndemo();")
+  labCardDescription String @default("Every case file ships with a live Monaco editor, sandboxed preview, real terminal, and an AI hint on request.")
+  // "More Case Files" grid heading
+  moreCaseFilesTitle String @default("More Case Files")
+  // Call-to-action banner
   ctaTitle    String   @default("Ready to earn your Agent Certification?")
   ctaSubtitle String   @default("Finish a case file, pass the quiz at 70% or higher, and download your certificate.")
+  ctaButtonLabel String @default("Start Your First Mission")
   updatedAt   DateTime @updatedAt
 }
 
