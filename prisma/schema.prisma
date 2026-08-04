@@ -251,6 +251,12 @@ model Enrollment {
   @@index([gatewayOrderId])
 }
 
+model ContentBlock {
+  key       String   @id
+  value     String
+  updatedAt DateTime @updatedAt
+}
+
 model SiteSettings {
   id          String   @id @default("singleton")
   heroBadge   String   @default("Classified curriculum · 47 case files")

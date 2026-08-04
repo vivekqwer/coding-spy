@@ -9,16 +9,18 @@ import { NavCaseFilesMenu } from "@/components/nav-case-files-menu";
 import { NavTopicStrip } from "@/components/nav-topic-strip";
 import { NavSearch } from "@/components/nav-search";
 import { MobileNavDrawer } from "@/components/mobile-nav-drawer";
+import { getContent } from "@/lib/content";
 import { Award, Sparkles } from "lucide-react";
 
 export async function Navbar() {
-  const [session, topics] = await Promise.all([
+  const [session, topics, c] = await Promise.all([
     getServerSession(authOptions),
     prisma.topic.findMany({
       where: { isPublished: true },
       orderBy: { order: "asc" },
       select: { slug: true, title: true, color: true },
     }),
+    getContent(),
   ]);
 
   const isLoggedIn = !!session?.user;
@@ -38,22 +40,22 @@ export async function Navbar() {
               href="/#case-files"
               className="flex items-center gap-1 text-sm font-medium text-muted-foreground hover:text-foreground"
             >
-              <Award className="h-3.5 w-3.5" /> Certifications
+              <Award className="h-3.5 w-3.5" /> {c["nav.certifications"]}
             </Link>
             <Link
               href="/prompts"
               className="flex items-center gap-1 text-sm font-medium text-muted-foreground hover:text-foreground"
             >
-              <Sparkles className="h-3.5 w-3.5" /> AI Prompt
+              <Sparkles className="h-3.5 w-3.5" /> {c["nav.aiPrompt"]}
             </Link>
             {isLoggedIn && (
               <Link href="/profile" className="text-sm font-medium text-muted-foreground hover:text-foreground">
-                Agent Profile
+                {c["nav.profile"]}
               </Link>
             )}
             {isAdmin && (
               <Link href="/admin" className="text-sm font-medium text-muted-foreground hover:text-foreground">
-                Mission Control
+                {c["nav.admin"]}
               </Link>
             )}
           </nav>

@@ -5,12 +5,13 @@ import { authOptions } from "@/lib/auth";
 import { LogoWithWordmark } from "@/components/logo";
 import { canAccessSection, isStaffRole, ROLE_LABELS } from "@/lib/permissions";
 import { Badge } from "@/components/ui/badge";
-import { LayoutDashboard, BookOpen, Users, Award, Search, Share2, Code2, Home, CreditCard, Sparkles } from "lucide-react";
+import { LayoutDashboard, BookOpen, Users, Award, Search, Share2, Code2, Home, CreditCard, Sparkles, FileText } from "lucide-react";
 import { AdminMobileNav } from "@/components/admin/admin-mobile-nav";
 
 const NAV_ITEMS = [
   { href: "/admin", label: "Overview", icon: LayoutDashboard, section: "overview" as const },
   { href: "/admin/homepage", label: "Homepage", icon: Home, section: "homepage" as const },
+  { href: "/admin/content", label: "Site Content", icon: FileText, section: "content" as const },
   { href: "/admin/topics", label: "Case Files", icon: BookOpen, section: "topics" as const },
   { href: "/admin/prompts", label: "AI Prompt", icon: Sparkles, section: "prompts" as const },
   { href: "/admin/seo", label: "SEO & AEO", icon: Search, section: "seo" as const },

@@ -9,9 +9,11 @@ import { LogoWithWordmark } from "@/components/logo";
 import { Button } from "@/components/ui/button";
 import { Input, Label } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { useContent } from "@/components/content-provider";
 
 export default function SignupPage() {
   const router = useRouter();
+  const c = useContent();
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -46,8 +48,8 @@ export default function SignupPage() {
         </div>
         <Card>
           <CardHeader>
-            <CardTitle>Request Clearance</CardTitle>
-            <p className="text-sm text-muted-foreground">Create your agent profile to start your first case file.</p>
+            <CardTitle>{c("signup.title", "Request Clearance")}</CardTitle>
+            <p className="text-sm text-muted-foreground">{c("signup.subtitle")}</p>
           </CardHeader>
           <CardContent>
             <form onSubmit={handleSubmit} className="space-y-4">
@@ -71,13 +73,13 @@ export default function SignupPage() {
                 />
               </div>
               <Button type="submit" className="w-full" disabled={loading}>
-                {loading ? "Processing…" : "Create Account"}
+                {loading ? c("signup.submitLoading") : c("signup.submit", "Create Account")}
               </Button>
             </form>
             <p className="mt-4 text-center text-sm text-muted-foreground">
-              Already an agent?{" "}
+              {c("signup.loginPrompt", "Already an agent?")}{" "}
               <Link href="/login" className="text-spy-cyan hover:underline">
-                Sign in
+                {c("signup.loginLink", "Sign in")}
               </Link>
             </p>
           </CardContent>

@@ -1,3 +1,7 @@
+"use client";
+
+import { useContent } from "@/components/content-provider";
+
 export function Logo({ className = "h-8 w-8" }: { className?: string }) {
   return (
     <svg viewBox="0 0 40 40" className={className} fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
@@ -21,11 +25,12 @@ export function Logo({ className = "h-8 w-8" }: { className?: string }) {
 }
 
 export function LogoWithWordmark({ className }: { className?: string }) {
+  const c = useContent();
   return (
     <div className={`flex items-center gap-2 ${className ?? ""}`}>
       <Logo />
       <span className="text-lg font-bold tracking-tight">
-        Coding <span className="text-gradient">Spy</span>
+        {c("brand.wordOne", "Coding")} <span className="text-gradient">{c("brand.wordTwo", "Spy")}</span>
       </span>
     </div>
   );

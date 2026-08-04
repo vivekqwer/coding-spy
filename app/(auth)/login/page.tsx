@@ -9,9 +9,11 @@ import { LogoWithWordmark } from "@/components/logo";
 import { Button } from "@/components/ui/button";
 import { Input, Label } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { useContent } from "@/components/content-provider";
 
 export default function LoginPage() {
   const router = useRouter();
+  const c = useContent();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
@@ -38,8 +40,8 @@ export default function LoginPage() {
         </div>
         <Card>
           <CardHeader>
-            <CardTitle>Agent Sign-In</CardTitle>
-            <p className="text-sm text-muted-foreground">Access Mission Control and your Case Files.</p>
+            <CardTitle>{c("login.title", "Agent Sign-In")}</CardTitle>
+            <p className="text-sm text-muted-foreground">{c("login.subtitle")}</p>
           </CardHeader>
           <CardContent>
             <form onSubmit={handleSubmit} className="space-y-4">
@@ -58,7 +60,7 @@ export default function LoginPage() {
                 />
               </div>
               <Button type="submit" className="w-full" disabled={loading}>
-                {loading ? "Verifying identity…" : "Sign In"}
+                {loading ? c("login.submitLoading") : c("login.submit", "Sign In")}
               </Button>
             </form>
             <Button
@@ -67,12 +69,12 @@ export default function LoginPage() {
               onClick={() => signIn("google", { callbackUrl: "/" })}
               type="button"
             >
-              Continue with Google
+              {c("login.google", "Continue with Google")}
             </Button>
             <p className="mt-4 text-center text-sm text-muted-foreground">
-              New agent?{" "}
+              {c("login.signupPrompt", "New agent?")}{" "}
               <Link href="/signup" className="text-spy-cyan hover:underline">
-                Request clearance
+                {c("login.signupLink", "Request clearance")}
               </Link>
             </p>
           </CardContent>

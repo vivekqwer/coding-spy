@@ -9,6 +9,7 @@ export type AdminSection =
   | "social"
   | "developer"
   | "homepage"
+  | "content"
   | "payments"
   | "prompts";
 
@@ -21,6 +22,7 @@ const SECTION_ACCESS: Record<AdminSection, Role[]> = {
   social: ["ADMIN", "SOCIAL_MEDIA_MANAGER"],
   developer: ["ADMIN", "DEVELOPER"],
   homepage: ["ADMIN", "SOCIAL_MEDIA_MANAGER"],
+  content: ["ADMIN", "SOCIAL_MEDIA_MANAGER"],
   payments: ["ADMIN"],
   prompts: ["ADMIN", "DEVELOPER"],
 };

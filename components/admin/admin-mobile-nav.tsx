@@ -13,6 +13,7 @@ import {
   Home,
   CreditCard,
   Sparkles,
+  FileText,
   Menu,
   X,
 } from "lucide-react";
@@ -23,6 +24,7 @@ import type { AdminSection } from "@/lib/permissions";
 const ICONS: Record<AdminSection, typeof LayoutDashboard> = {
   overview: LayoutDashboard,
   homepage: Home,
+  content: FileText,
   topics: BookOpen,
   prompts: Sparkles,
   seo: Search,
