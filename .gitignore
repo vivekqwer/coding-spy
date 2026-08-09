@@ -3,3 +3,6 @@ node_modules/
 .env
 .env.local
 *.log
+
+# TypeScript incremental build cache (must NOT be committed — breaks Railway build)
+tsconfig.tsbuildinfo
