@@ -74,11 +74,17 @@ const DEFAULTS: Record<string, string> = Object.fromEntries(
 
 export type ContentMap = Record<string, string>;
 
-/** Server-side: returns the full content map (defaults merged with DB overrides). */
+/** Server-side: returns the full content map (defaults merged with DB overrides).
+ * Falls back to defaults if the DB is unreachable (e.g. during build-time
+ * prerender when DATABASE_URL isn't set), so builds never crash on content. */
 export async function getContent(): Promise<ContentMap> {
-  const rows = await prisma.contentBlock.findMany();
   const map: ContentMap = { ...DEFAULTS };
-  for (const r of rows) map[r.key] = r.value;
+  try {
+    const rows = await prisma.contentBlock.findMany();
+    for (const r of rows) map[r.key] = r.value;
+  } catch {
+    // DB not available (build time / cold start) — use defaults.
+  }
   return map;
 }
 

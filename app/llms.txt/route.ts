@@ -1,13 +1,22 @@
 import { prisma } from "@/lib/prisma";
 
+export const dynamic = "force-dynamic";
+
+type LlmTopic = { title: string; slug: string; description: string; isPaid: boolean };
+
 export async function GET() {
   const baseUrl = process.env.NEXTAUTH_URL ?? "http://localhost:3000";
 
-  const topics = await prisma.topic.findMany({
-    where: { isPublished: true },
-    orderBy: { order: "asc" },
-    select: { title: true, slug: true, description: true, isPaid: true },
-  });
+  let topics: LlmTopic[] = [];
+  try {
+    topics = await prisma.topic.findMany({
+      where: { isPublished: true },
+      orderBy: { order: "asc" },
+      select: { title: true, slug: true, description: true, isPaid: true },
+    });
+  } catch {
+    // DB unavailable at build time — emit the header only.
+  }
 
   const lines = [
     "# Coding Spy",

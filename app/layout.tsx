@@ -4,6 +4,10 @@ import "./globals.css";
 import { Providers } from "@/components/providers";
 import { getContent } from "@/lib/content";
 
+// The whole app is DB-backed and auth-aware — render on demand, never
+// statically prerender at build time (which would need DATABASE_URL).
+export const dynamic = "force-dynamic";
+
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
 const mono = JetBrains_Mono({ subsets: ["latin"], variable: "--font-mono" });
 
