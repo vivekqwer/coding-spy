@@ -3,6 +3,7 @@ import { Inter, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 import { Providers } from "@/components/providers";
 import { getContent } from "@/lib/content";
+import { getBaseUrl } from "@/lib/base-url";
 
 // The whole app is DB-backed and auth-aware — render on demand, never
 // statically prerender at build time (which would need DATABASE_URL).
@@ -12,7 +13,7 @@ const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
 const mono = JetBrains_Mono({ subsets: ["latin"], variable: "--font-mono" });
 
 export const metadata: Metadata = {
-  metadataBase: new URL(process.env.NEXTAUTH_URL ?? "http://localhost:3000"),
+  metadataBase: new URL(getBaseUrl()),
   title: "Coding Spy — Decode. Learn. Master.",
   description:
     "Coding Spy is an interactive tutorial platform for learning to code — case files, a live lab playground, quizzes, and agent certification.",
