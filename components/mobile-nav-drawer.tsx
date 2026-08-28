@@ -1,6 +1,7 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { createPortal } from "react-dom";
 import Link from "next/link";
 import { signOut } from "next-auth/react";
 import Fuse from "fuse.js";
@@ -19,8 +20,22 @@ export function MobileNavDrawer({
   isAdmin: boolean;
 }) {
   const [open, setOpen] = useState(false);
+  const [mounted, setMounted] = useState(false);
   const [query, setQuery] = useState("");
   const groups = categorize(topics);
+
+  // Portal target is only available on the client.
+  useEffect(() => setMounted(true), []);
+
+  // Lock body scroll while the drawer is open.
+  useEffect(() => {
+    if (open) {
+      document.body.style.overflow = "hidden";
+      return () => {
+        document.body.style.overflow = "";
+      };
+    }
+  }, [open]);
 
   const fuse = useMemo(() => new Fuse(topics, { keys: ["title"], threshold: 0.35 }), [topics]);
   const results = query.trim() ? fuse.search(query).slice(0, 8).map((r) => r.item) : [];
@@ -35,8 +50,8 @@ export function MobileNavDrawer({
         <Menu className="h-4 w-4" />
       </button>
 
-      {open && (
-        <div className="fixed inset-0 z-50 md:hidden">
+      {open && mounted && createPortal(
+        <div className="fixed inset-0 z-[100] md:hidden">
           <div className="absolute inset-0 bg-black/60" onClick={() => setOpen(false)} />
           <div className="absolute inset-y-0 right-0 w-80 max-w-[85vw] overflow-y-auto bg-background">
             <div className="flex items-center justify-between border-b border-border/60 p-4">
@@ -135,7 +150,8 @@ export function MobileNavDrawer({
               ))}
             </div>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
     </>
   );
